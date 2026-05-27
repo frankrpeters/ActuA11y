@@ -39,24 +39,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 app/src/
   main/
-    AndroidManifest.xml        # No activities declared yet
-    java/de/frpeters/actua11y/ # Main source (empty — no activities/services yet)
-    res/                       # Resources (themes, colors, launcher icons)
-  test/                        # Local JVM unit tests (JUnit 4)
-  androidTest/                 # Instrumented tests (Espresso)
+    AndroidManifest.xml
+    java/de/frpeters/actua11y/
+      MainActivity.kt
+      navigation/          # NavRoutes.kt (sealed Screen), ActuA11yNavHost.kt
+      ui/
+        theme/Theme.kt     # Material3 + dynamic color (API 31+)
+        home/HomeScreen.kt
+        topic/contentdescriptions/ContentDescriptionsScreen.kt
+    res/
+      drawable/            # ic_arrow_back, ic_info, ic_demo_smartphone, ic_demo_wave
+      values/strings.xml   # All UI strings — no hardcoded strings in Kotlin
+  test/                    # JUnit 4 boilerplate (no test deps in current build)
+  androidTest/             # Espresso boilerplate (no test deps in current build)
 gradle/
-  libs.versions.toml           # Version catalog — add all dependencies here
+  libs.versions.toml       # Version catalog — add all new deps here first
 ```
 
 ## Dependencies & Tooling
 
-Dependencies are managed via Gradle version catalog (`gradle/libs.versions.toml`). When adding a new dependency, add its version to `[versions]`, the library coordinates to `[libraries]`, and reference it in `app/build.gradle.kts` via `libs.<alias>`.
+Dependencies are managed via Gradle version catalog (`gradle/libs.versions.toml`). When adding a dependency: add version to `[versions]`, coordinates to `[libraries]`, then reference in `app/build.gradle.kts` via `libs.<alias>`.
 
-Current dependencies: `androidx-appcompat`, `androidx-core-ktx`, `material`.
+Current stack: Compose BOM 2025.05.00, Material3, Navigation Compose, activity-compose, core-ktx, lifecycle-runtime-ktx.
 
-## Key Notes
+## Key Notes — AGP 9.2.1 Behaviour
 
-- The manifest declares no activities yet — the app is in early scaffolding state.
-- Kotlin plugin is not explicitly listed in `libs.versions.toml`; it is pulled in transitively via AGP 9.x. If explicit Kotlin plugin configuration is needed, add `kotlin-android` to the version catalog and `app/build.gradle.kts`.
-- `compileSdk` uses the AGP 9.x `release(36) { minorApiLevel = 1 }` syntax — do not change this to a plain integer.
-- Proguard is disabled in release builds (`isMinifyEnabled = false`); enable when the app is closer to production.
+- **Do NOT apply `org.jetbrains.kotlin.android`** in `app/build.gradle.kts`. AGP 9.2.1 registers the `kotlin` extension internally; applying the plugin explicitly causes `Cannot add extension with name 'kotlin'`. Only apply `kotlin-compose` for Compose compiler support.
+- **No `kotlinOptions` block** — `compileOptions { sourceCompatibility/targetCompatibility }` alone is sufficient; AGP 9.x syncs the Kotlin JVM target automatically.
+- `compileSdk = 36` uses the plain integer form (not the `release(36) { minorApiLevel = 1 }` form from the original scaffold — that form is for SDK 36.1 extension APIs).
+- XML base theme must use `android:Theme.Material.Light.NoActionBar` / `android:Theme.Material.NoActionBar` — `NoTitleBar` variants do not exist in the Material theme family and AAPT will error.
+- `TopAppBar` from Material3 is `@ExperimentalMaterial3Api` in BOM 2025.05.00; annotate callers with `@OptIn(ExperimentalMaterial3Api::class)`.
+
+## Accessibility Conventions
+
+This project uses inline `// WHY:` and `// GOOD:` comments to explain every accessibility decision (per the requirements doc). Future topic screens follow the same template as `ContentDescriptionsScreen`:
+
+1. `Scaffold` with `Modifier.semantics { paneTitle = "..." }` on the root
+2. `TopAppBar` with `IconButton` back nav (contentDescription = `navigate_back` string)
+3. Debug-only "Bad version" `TextButton` in TopAppBar actions, gated by `BuildConfig.DEBUG`
+4. Scrollable `Column` content: intro → demo sections (each starting with a heading-semantics `Text`) → collapsible developer note `Card`
+
+Each new route: add `object` to `Screen` sealed class, add `composable {}` entry in `ActuA11yNavHost`.
