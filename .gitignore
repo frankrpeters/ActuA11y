@@ -7,9 +7,11 @@ local.properties
 /captures
 .externalNativeBuild/
 .cxx/
+.mcp.json
 
 # IDE — IntelliJ / Android Studio
 .idea/
 
 # macOS
 .DS_Store
+
