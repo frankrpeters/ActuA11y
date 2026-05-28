@@ -8,10 +8,10 @@ local.properties
 .externalNativeBuild/
 .cxx/
 .mcp.json
+/.claude/
 
 # IDE — IntelliJ / Android Studio
-.idea/
+/.idea/
 
 # macOS
 .DS_Store
-
