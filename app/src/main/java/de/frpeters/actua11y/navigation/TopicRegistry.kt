@@ -1,0 +1,48 @@
+package de.frpeters.actua11y.navigation
+
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import de.frpeters.actua11y.R
+import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
+
+// WHY: single source of truth for every topic (requirements §4.7). Navigation, the home
+// screen, category listings, app-bar titles, and the toggle's enabled state are all derived
+// from this list — adding a topic is "create the package, append one entry here."
+
+enum class TopicCategory(@param:StringRes val titleRes: Int) {
+    STRUCTURE(R.string.category_structure),
+    COLLECTIONS(R.string.category_collections),
+    CONTROLS(R.string.category_controls),
+    TEXT(R.string.category_text),
+    FORMS(R.string.category_forms),
+    VISUAL(R.string.category_visual),
+    INTEROP(R.string.category_interop),
+}
+
+data class Topic(
+    val id: String,
+    val category: TopicCategory,
+    @param:StringRes val titleRes: Int,
+    val supportsNaive: Boolean,
+    val content: @Composable (showNaive: Boolean, modifier: Modifier) -> Unit,
+) {
+    val route: String get() = "topic/$id"
+}
+
+object TopicRegistry {
+    val all: List<Topic> = listOf(
+        Topic(
+            id = "content_descriptions",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.content_descriptions_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ContentDescriptionsTopic(showNaive, modifier)
+            },
+        ),
+    )
+
+    fun byRoute(route: String?): Topic? = all.firstOrNull { it.route == route }
+    fun byCategory(category: TopicCategory): List<Topic> = all.filter { it.category == category }
+}

@@ -4,32 +4,55 @@
     <!-- Home Screen -->
     <string name="home_screen_title">ActuA11y</string>
     <string name="home_pane_title">Home — ActuA11y</string>
-    <string name="home_intro_title">Welcome to ActuA11y</string>
-    <string name="home_intro_text">ActuA11y shows how to build accessible Android apps. Browse the topics below to explore different accessibility patterns. If you use TalkBack, switch access, or a keyboard, this app is designed to work well with all of them.</string>
-    <string name="home_talkback_category">TalkBack</string>
-    <string name="content_descriptions_label">Content Descriptions</string>
-    <string name="content_descriptions_list_item_desc">Content Descriptions topic. Learn how images and icon buttons describe themselves to TalkBack. Activates the Content Descriptions topic screen.</string>
 
-    <!-- Content Descriptions Screen -->
+    <!-- Topic categories (requirements §3, §4.7) -->
+    <string name="category_structure">Structure and Traversal</string>
+    <string name="category_collections">Collections</string>
+    <string name="category_controls">Controls and Interaction</string>
+    <string name="category_text">Text and Announcement</string>
+    <string name="category_forms">Forms and Input</string>
+    <string name="category_visual">Visual and Motor</string>
+    <string name="category_interop">Interop</string>
+    <string name="category_empty">No topics here yet.</string>
+    <plurals name="category_topic_count">
+        <item quantity="one">%1$d topic</item>
+        <item quantity="other">%1$d topics</item>
+    </plurals>
+    <plurals name="category_list_item_desc_with_topics">
+        <item quantity="one">%1$s category, %2$d topic</item>
+        <item quantity="other">%1$s category, %2$d topics</item>
+    </plurals>
+    <string name="category_list_item_desc_empty">%1$s category, no topics yet</string>
+    <string name="topic_list_item_desc_template">%1$s topic. Opens the %1$s topic screen.</string>
+
+    <!-- Onboarding card (requirements §5) -->
+    <string name="onboarding_title">Welcome to ActuA11y</string>
+    <string name="onboarding_body">ActuA11y demonstrates accessibility patterns in readable source code. Each topic has two versions, switched with the toggle in the app bar: a Naive version built without accessibility in mind, and a Better version built with it. Naive versions are deliberately flawed — if one feels broken, that is the point, not a bug in this app.\n\nIf you use TalkBack, switch access, or a keyboard, try both versions of a topic and compare.</string>
+    <string name="onboarding_talkback_link_label">Learn how to use TalkBack (opens Android\'s official documentation)</string>
+    <string name="onboarding_talkback_link_url">https://support.google.com/accessibility/android/answer/6283677</string>
+
+    <!-- Naive/Better toggle (requirements §4.4) -->
+    <string name="naive_toggle_label">Naive / Better</string>
+    <string name="naive_toggle_state_better">Accessible version</string>
+    <string name="naive_toggle_state_naive">Naive version</string>
+
+    <string name="navigate_back">Navigate back</string>
+
+    <!-- Content Descriptions topic -->
     <string name="content_descriptions_title">Content Descriptions</string>
     <string name="content_descriptions_pane_title">Content Descriptions</string>
-    <string name="navigate_back">Navigate back</string>
-    <string name="content_descriptions_intro">Images and icon buttons need descriptions so TalkBack can read them aloud. Swipe through this screen with TalkBack on to hear how each example works.</string>
+    <string name="content_descriptions_intro">Images and icon buttons need descriptions so TalkBack can read them aloud.</string>
+    <string name="content_descriptions_what_to_try">Turn on TalkBack and swipe through the examples below. Note what — if anything — is announced for each one, then switch versions with the toggle in the app bar and compare.</string>
 
     <string name="meaningful_image_section_label">Image with content description</string>
     <string name="meaningful_image_desc">A smartphone icon representing a mobile device</string>
-    <string name="meaningful_image_instruction">Focus this image with TalkBack. TalkBack reads aloud the content description set in code.</string>
 
     <string name="icon_button_section_label">Icon button with content description</string>
     <string name="icon_button_desc">Show information about content descriptions</string>
-    <string name="icon_button_instruction">This button has no visible label. TalkBack reads the content description from code so you know what the button does.</string>
 
     <string name="decorative_image_section_label">Decorative image — skipped by TalkBack</string>
-    <string name="decorative_image_instruction">TalkBack skips this image entirely. In code, its content description is set to null, which removes it from the accessibility tree.</string>
 
     <string name="developer_note_label">Developer note</string>
-    <string name="developer_note_body">For meaningful images, pass a non-null string to the Image contentDescription parameter — TalkBack reads it when the image is focused. For decorative images, pass null; Compose removes the node from the accessibility tree entirely.\n\nFor icon-only buttons, set contentDescription on the Icon inside IconButton. This is the only name TalkBack has for that button.\n\nModifier.semantics with paneTitle announces the screen name when a pane appears. Without it, TalkBack gives no feedback when the user navigates to a new screen.\n\nModifier.semantics with heading() marks text as a section heading so TalkBack users can jump between sections using a swipe gesture.\n\nSee: androidx.compose.ui.semantics.SemanticsProperties</string>
-
-    <string name="bad_version_button">Bad version</string>
-    <string name="bad_version_toast">Bad version not yet implemented</string>
+    <string name="content_descriptions_developer_note_better">For meaningful images, pass a non-null string to the Image contentDescription parameter — TalkBack reads it when the image is focused. For decorative images, pass null; Compose removes the node from the accessibility tree entirely.\n\nFor icon-only buttons, set contentDescription on the Icon inside IconButton. This is the only name TalkBack has for that button.\n\nSee: androidx.compose.ui.semantics.SemanticsProperties</string>
+    <string name="content_descriptions_developer_note_naive">Neither the meaningful image nor the icon button carries a contentDescription. Compose\'s Image only adds a semantics node when contentDescription is non-null, so the meaningful image here carries none at all — TalkBack has nothing to focus and skips it silently, indistinguishable from a genuinely decorative image. The IconButton is still a real clickable node, so TalkBack does focus it, but with no name for what it does.\n\nThe decorative image is unchanged from the Better version — a decorative image is correctly null in both, so there is nothing to contrast on that element specifically.\n\nSee the Better version for the fix: androidx.compose.ui.semantics.SemanticsProperties</string>
 </resources>

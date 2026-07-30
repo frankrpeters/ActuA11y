@@ -1,6 +1,6 @@
 [versions]
-agp = "9.2.1"
-kotlin = "2.0.21"
+agp = "9.3.1"
+kotlin = "2.2.10"
 coreKtx = "1.18.0"
 composeBom = "2025.05.00"
 lifecycleRuntimeKtx = "2.9.0"
@@ -28,6 +28,8 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -11,17 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -30,87 +29,124 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import de.frpeters.actua11y.R
-import de.frpeters.actua11y.navigation.Screen
+import de.frpeters.actua11y.navigation.TopicCategory
+import de.frpeters.actua11y.navigation.TopicRegistry
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Home screen: onboarding card, then all seven categories (requirements §5). Always the
+ * accessible implementation — Home has no Naive counterpart, so there is nothing to toggle
+ * here. Renders content only; the app bar lives in [de.frpeters.actua11y.ui.AppScaffold].
+ */
 @Composable
-fun HomeScreen(onNavigate: (String) -> Unit) {
+fun HomeScreen(onNavigateToCategory: (TopicCategory) -> Unit, modifier: Modifier = Modifier) {
     val paneTitleStr = stringResource(R.string.home_pane_title)
-    val itemDescStr = stringResource(R.string.content_descriptions_list_item_desc)
 
-    Scaffold(
-        // WHY: paneTitle announces the screen name to TalkBack when navigation lands here,
-        // giving screen-reader users immediate context about where they are.
-        modifier = Modifier.semantics { paneTitle = paneTitleStr },
-        topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.home_screen_title)) })
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            // WHY: paneTitle announces the screen name to TalkBack on arrival.
+            .semantics { paneTitle = paneTitleStr },
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item { OnboardingCard() }
+        items(TopicCategory.entries) { category ->
+            CategoryRow(category = category, onClick = { onNavigateToCategory(category) })
         }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = stringResource(R.string.home_intro_title),
-                            style = MaterialTheme.typography.titleMedium
+    }
+}
+
+@Composable
+private fun OnboardingCard() {
+    val linkLabel = stringResource(R.string.onboarding_talkback_link_label)
+    val linkUrl = stringResource(R.string.onboarding_talkback_link_url)
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(R.string.onboarding_title),
+                style = MaterialTheme.typography.titleMedium,
+                // WHY: heading() lets TalkBack users jump straight past the onboarding card
+                // with a swipe gesture once they've read it once.
+                modifier = Modifier.semantics { heading() },
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.onboarding_body),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(Modifier.height(8.dp))
+            // WHY: LinkAnnotation.Url gives this text real link semantics — TalkBack announces
+            // it as a link, and the visible label already states the destination, so the two
+            // requirements (announced as a link, destination described) are met together.
+            Text(
+                text = buildAnnotatedString {
+                    withLink(
+                        LinkAnnotation.Url(
+                            url = linkUrl,
+                            styles = TextLinkStyles(
+                                style = SpanStyle(textDecoration = TextDecoration.Underline)
+                            ),
                         )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.home_intro_text),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-            }
-            item {
-                // WHY: heading() lets TalkBack users jump between categories with a
-                // swipe gesture, rather than having to move through every list item.
-                Text(
-                    text = stringResource(R.string.home_talkback_category),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .padding(top = 8.dp, bottom = 4.dp)
-                        .semantics { heading() }
-                )
-            }
-            item {
-                Surface(
-                    onClick = { onNavigate(Screen.TopicContentDescriptions.route) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        // WHY: clearAndSetSemantics replaces the auto-derived semantics
-                        // (just the label text) with a complete sentence that tells TalkBack
-                        // users what the item is and where it leads before they activate it.
-                        .clearAndSetSemantics {
-                            contentDescription = itemDescStr
-                            role = Role.Button
-                            onClick { onNavigate(Screen.TopicContentDescriptions.route); true }
-                        },
-                    shape = MaterialTheme.shapes.medium,
-                    tonalElevation = 2.dp
-                ) {
-                    Row(
-                        modifier = Modifier
-                            // WHY: 48 dp is the WCAG minimum touch target size.
-                            .heightIn(min = 48.dp)
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = stringResource(R.string.content_descriptions_label),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f)
-                        )
+                        append(linkLabel)
                     }
-                }
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryRow(category: TopicCategory, onClick: () -> Unit) {
+    val title = stringResource(category.titleRes)
+    val topicCount = TopicRegistry.byCategory(category).size
+    val itemDesc = if (topicCount > 0) {
+        pluralStringResource(R.plurals.category_list_item_desc_with_topics, topicCount, title, topicCount)
+    } else {
+        stringResource(R.string.category_list_item_desc_empty, title)
+    }
+
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            // WHY: clearAndSetSemantics replaces the auto-derived semantics (title text plus
+            // separate count text) with one sentence stating the category and whether it has
+            // topics yet, so TalkBack announces a single complete description per row.
+            .clearAndSetSemantics {
+                contentDescription = itemDesc
+                role = Role.Button
+                onClick { onClick(); true }
+            },
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 2.dp,
+    ) {
+        Row(
+            modifier = Modifier
+                .heightIn(min = 48.dp) // WHY: WCAG 2.5.8 minimum touch target size.
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = if (topicCount > 0) {
+                        pluralStringResource(R.plurals.category_topic_count, topicCount, topicCount)
+                    } else {
+                        stringResource(R.string.category_empty)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
         }
     }

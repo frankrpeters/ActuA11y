@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import de.frpeters.actua11y.navigation.ActuA11yNavHost
+import de.frpeters.actua11y.ui.AppScaffold
 import de.frpeters.actua11y.ui.theme.ActuA11yTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ActuA11yTheme {
-                ActuA11yNavHost()
+                AppScaffold()
             }
         }
     }
