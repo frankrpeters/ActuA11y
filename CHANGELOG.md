@@ -9,6 +9,8 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-30
+
 ### Added
 
 - Naive/Better runtime toggle in a persistent app bar (`ui/components/NaiveToggle.kt`),
@@ -31,4 +33,5 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/main...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.1.0...dev
+[0.1.0]: https://github.com/frankrpeters/ActuA11y/releases/tag/v0.1.0
