@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.navigation.Topic
@@ -101,5 +102,23 @@ private fun TopicRow(topic: Topic, onClick: () -> Unit) {
                 modifier = Modifier.weight(1f),
             )
         }
+    }
+}
+
+@Preview(name = "Light 100%, with topics", showBackground = true)
+@Preview(name = "Dark 100%, with topics", showBackground = true, uiMode = 0x20)
+@Preview(name = "Light 200% font, with topics", showBackground = true, fontScale = 2.0f)
+@Composable
+private fun CategoryScreenPreview() {
+    MaterialTheme {
+        CategoryScreen(category = TopicCategory.TEXT, onNavigateToTopic = {})
+    }
+}
+
+@Preview(name = "Light 100%, empty", showBackground = true)
+@Composable
+private fun CategoryScreenEmptyPreview() {
+    MaterialTheme {
+        CategoryScreen(category = TopicCategory.STRUCTURE, onNavigateToTopic = {})
     }
 }

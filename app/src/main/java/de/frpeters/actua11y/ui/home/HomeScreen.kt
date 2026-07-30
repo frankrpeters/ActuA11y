@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.navigation.TopicCategory
@@ -149,5 +150,15 @@ private fun CategoryRow(category: TopicCategory, onClick: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+@Preview(name = "Light 100%", showBackground = true)
+@Preview(name = "Dark 100%", showBackground = true, uiMode = 0x20)
+@Preview(name = "Light 200% font", showBackground = true, fontScale = 2.0f)
+@Composable
+private fun HomeScreenPreview() {
+    MaterialTheme {
+        HomeScreen(onNavigateToCategory = {})
     }
 }

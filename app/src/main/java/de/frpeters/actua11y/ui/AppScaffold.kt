@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.frpeters.actua11y.R
@@ -23,6 +24,7 @@ import de.frpeters.actua11y.navigation.ActuA11yNavHost
 import de.frpeters.actua11y.navigation.TopicCategory
 import de.frpeters.actua11y.navigation.TopicRegistry
 import de.frpeters.actua11y.ui.components.NaiveToggle
+import de.frpeters.actua11y.ui.theme.ActuA11yTheme
 
 /**
  * The single [Scaffold] and [TopAppBar] for the whole app, composed once above the
@@ -82,5 +84,15 @@ fun AppScaffold() {
             showNaive = showNaive,
             modifier = Modifier.padding(padding),
         )
+    }
+}
+
+@Preview(name = "Light 100%", showBackground = true)
+@Preview(name = "Dark 100%", showBackground = true, uiMode = 0x20)
+@Preview(name = "Light 200% font", showBackground = true, fontScale = 2.0f)
+@Composable
+private fun AppScaffoldPreview() {
+    ActuA11yTheme {
+        AppScaffold()
     }
 }
