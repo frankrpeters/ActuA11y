@@ -456,4 +456,7 @@ way.
 | 1 | Apache 2.0 header automation | Nothing | IDE file template. |
 | 2 | §3.2.1 grid override behaviour | Topic 7 | Requires device verification. |
 | 3 | Topic 35 escape-route design | Topic 35 | Required by §4.6 before implementation. |
-| 4 | `minSdk` — 28 or 30? | Nothing yet | This document specifies 28; the build script and `CLAUDE.md` say 30. Unresolved. If 30 was chosen deliberately, amend this document; if it was incidental, amend the build. Relevant to topic 31, where API-level differences in font scaling are the subject. |
+
+> **Resolved 2026-07-30:** `minSdk` is 28, matching this document and `app/build.gradle.kts`.
+> `CLAUDE.md` previously said 30; that was stale text from before the initial scaffold, not a
+> deliberate deviation, and has been corrected.

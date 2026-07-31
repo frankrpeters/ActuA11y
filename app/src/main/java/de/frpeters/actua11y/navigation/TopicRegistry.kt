@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
+import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
+import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 
 // WHY: single source of truth for every topic (requirements §4.7). Navigation, the home
 // screen, category listings, app-bar titles, and the toggle's enabled state are all derived
@@ -32,6 +34,24 @@ data class Topic(
 
 object TopicRegistry {
     val all: List<Topic> = listOf(
+        Topic(
+            id = "traversal_groups",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.traversal_groups_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                TraversalGroupsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "traversal_index",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.traversal_index_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                TraversalIndexTopic(showNaive, modifier)
+            },
+        ),
         Topic(
             id = "content_descriptions",
             category = TopicCategory.TEXT,
