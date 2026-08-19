@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
+import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 
@@ -76,6 +77,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 HeadingsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "pane_titles",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.pane_titles_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                PaneTitlesTopic(showNaive, modifier)
             },
         ),
         Topic(

@@ -9,6 +9,13 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Pane Titles topic (`ui/topic/panetitles/`) — a Summary/Details view switcher whose content
+  swaps in place, with no navigation event. Better gives the swapped content pane its own
+  `paneTitle` that tracks the selected view; Naive relies only on the screen-level `paneTitle`
+  set once on arrival, so TalkBack has no signal that the content changed.
+
 ## [0.2.0] - 2026-07-31
 
 ### Added
