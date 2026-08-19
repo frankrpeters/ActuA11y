@@ -15,6 +15,10 @@ into a tagged release.
   swaps in place, with no navigation event. Better gives the swapped content pane its own
   `paneTitle` that tracks the selected view; Naive relies only on the screen-level `paneTitle`
   set once on arrival, so TalkBack has no signal that the content changed.
+- Focus After Navigation topic (`ui/topic/focusafternavigation/`) — a notification-frequency
+  picker dialog. Better returns focus to the triggering button once the picker closes; Naive
+  leaves where focus goes next undefined. This closes out requirements §3.1 (Structure and
+  Traversal).
 
 ## [0.2.0] - 2026-07-31
 

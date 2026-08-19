@@ -59,6 +59,31 @@ AGP 9.3.1 / Kotlin 2.2.10 / Gradle 9.5.0.
 
 ---
 
+## Compose Focus Behaviour — Established By Trial
+
+Discovered building the Focus After Navigation topic (2026-08-19), confirmed on a real device
+(Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any future topic that calls
+`FocusRequester.requestFocus()` programmatically — e.g. "validation, announcement, and focus" and
+"modal surfaces" in the topic catalogue.
+
+- **`FocusRequester.requestFocus()` on a `Button` (or any `clickable`-based composable) silently
+  returns `false` on a real touchscreen device**, no exception thrown. Root cause:
+  `clickable`'s focus target uses `Focusability.SystemDefined`, which refuses focus whenever the
+  platform's `InputMode` is `Touch` — the default on any touchscreen device. **TalkBack does not
+  change this** — its swipe/explore gestures are still touch events, so this is not fixed by
+  turning TalkBack on. Fix: call `LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)`
+  before `requestFocus()`; this calls the real, public `View.requestFocusFromTouch()`.
+- **Requesting focus back into a screen right after an `AlertDialog` (or any `Dialog`) dismisses
+  can fail even with the above fix**, because the dialog is a separate platform Window and window
+  focus returns to the Activity asynchronously. Wait for
+  `LocalWindowInfo.current.isWindowFocused` (via `snapshotFlow`) before requesting focus, rather
+  than guessing a frame count or fixed delay.
+- Both fixes are required together for a "return focus to the trigger after a dialog closes"
+  pattern; either alone reproducibly fails. See `ui/topic/focusafternavigation/FocusAfterNavigationBetter.kt`
+  for the working reference implementation and its in-code rationale.
+
+---
+
 ## Project Structure
 
 ```

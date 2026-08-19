@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
+import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
@@ -86,6 +87,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 PaneTitlesTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "focus_after_navigation",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.focus_after_navigation_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                FocusAfterNavigationTopic(showNaive, modifier)
             },
         ),
         Topic(
