@@ -19,6 +19,14 @@ into a tagged release.
   picker dialog. Better returns focus to the triggering button once the picker closes; Naive
   leaves where focus goes next undefined. This closes out requirements §3.1 (Structure and
   Traversal).
+- PIN Show/Hide Toggle topic (`ui/topic/pinshowhide/`) — a six-digit PIN entry with a
+  reveal/hide control, modelled on a real-world bug (six separate per-digit boxes with no
+  password semantics, and a state-swapping toggle that made TalkBack narrate the PIN as a
+  text-change diff). Better binds one `BasicSecureTextField`/`TextFieldState` decorated to draw
+  the same six boxes, so TalkBack sees one password-marked field instead of six plain ones, and
+  expresses the reveal/hide state as a `Role.Switch` with an explicit `stateDescription` instead
+  of a button whose own label swaps. The developer note documents what remains open rather than
+  claiming it fully solved — see the note for the `TextObfuscationMode` nuance.
 
 ## [0.2.0] - 2026-07-31
 

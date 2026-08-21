@@ -24,6 +24,7 @@ import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopi
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
+import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 
@@ -96,6 +97,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 FocusAfterNavigationTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "pin_show_hide",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.pin_show_hide_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                PinShowHideTopic(showNaive, modifier)
             },
         ),
         Topic(
