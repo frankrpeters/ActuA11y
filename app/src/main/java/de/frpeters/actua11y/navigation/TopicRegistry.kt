@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
+import de.frpeters.actua11y.ui.topic.disabledelements.DisabledElementsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
@@ -176,6 +177,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 MinimumTouchTargetTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "disabled_elements",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.disabled_elements_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                DisabledElementsTopic(showNaive, modifier)
             },
         ),
         Topic(

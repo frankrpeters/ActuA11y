@@ -58,6 +58,15 @@ into a tagged release.
   Developer notes and tests reflect this verified reality rather than the topic's original premise;
   a redesign to demonstrate the real risk (touch-region clipping in a row of packed icons) is
   logged in the topic backlog for later.
+- Disabled Elements topic (`ui/topic/disabledelements/`) — a checkbox-gated Submit button. Better
+  always attaches `Modifier.clickable(enabled = agreed, role = Role.Button)`, never conditionally
+  omitting it; reading `Clickable.kt`'s `AbstractClickableNode.applySemantics()` shows this
+  registers the click action unconditionally and only calls `disabled()` afterwards when not
+  enabled, so a disabled button keeps its role and its (inert) action alongside the disabled
+  marker. Naive attaches no `Modifier.clickable` at all until the checkbox is checked, so the
+  button carries no role, click action, or disabled marker before then — confirmed absent, not
+  present-and-false, by instrumented test. The checkbox itself reuses the Composite Controls
+  topic's established toggleable pattern unchanged.
 
 ## [0.3.0] - 2026-08-21
 
