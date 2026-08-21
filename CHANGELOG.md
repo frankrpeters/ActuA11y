@@ -29,6 +29,15 @@ into a tagged release.
   true)`, which still exposes cursor and text-selection actions that do nothing; the developer
   note also covers `enabled = false`, the other common wrong attempt, in prose. This opens
   requirements §3.3 (Controls and Interaction).
+- Composite Controls topic (`ui/topic/compositecontrols/`) — a Wi-Fi settings row with a label,
+  a description, and a `Switch`. Better merges all three into one control with
+  `Modifier.toggleable(role = Role.Switch)` plus `mergeDescendants = true` on the row, and makes
+  the inner `Switch(onCheckedChange = null)` non-interactive so it isn't independently focusable
+  — confirmed by an instrumented test reading the switch's own unmerged semantics node, which
+  carries no click action once `onCheckedChange` is `null`. The developer note also traces
+  `SemanticsNode.kt`'s `mergeConfig` to confirm merge order follows structural composition order
+  (`zSortedChildren`), never `traversalIndex`. Naive leaves the row unmerged, so the switch — fully
+  interactive on its own — carries no label connecting it back to "Wi-Fi".
 
 ## [0.3.0] - 2026-08-21
 

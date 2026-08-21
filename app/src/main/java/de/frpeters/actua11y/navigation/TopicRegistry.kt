@@ -20,6 +20,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
+import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
@@ -146,6 +147,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 InputAsButtonTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "composite_controls",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.composite_controls_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                CompositeControlsTopic(showNaive, modifier)
             },
         ),
         Topic(
