@@ -38,6 +38,14 @@ into a tagged release.
   `SemanticsNode.kt`'s `mergeConfig` to confirm merge order follows structural composition order
   (`zSortedChildren`), never `traversalIndex`. Naive leaves the row unmerged, so the switch — fully
   interactive on its own — carries no label connecting it back to "Wi-Fi".
+- Selectable Icon Lists topic (`ui/topic/selectableiconlists/`) — a row of five colour swatches
+  with no visible text, acting as a single-select accent colour picker. Better wraps the row in
+  `Modifier.selectableGroup()` and gives each swatch `Modifier.selectable(role = Role.RadioButton)`
+  plus a `contentDescription` naming its colour, so TalkBack gets both halves an icon-only control
+  needs: what it is, and whether it's the current choice, with a group position like "2 of 5".
+  Naive supplies only the `contentDescription` — the more obvious half — leaving every swatch
+  without a selected state, role, or group, modelling the "implementations usually supply one"
+  gap named in requirements §3.3.
 
 ## [0.3.0] - 2026-08-21
 

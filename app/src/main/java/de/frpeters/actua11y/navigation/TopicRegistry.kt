@@ -30,6 +30,7 @@ import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
+import de.frpeters.actua11y.ui.topic.selectableiconlists.SelectableIconListsTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 
@@ -156,6 +157,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 CompositeControlsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "selectable_icon_lists",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.selectable_icon_lists_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                SelectableIconListsTopic(showNaive, modifier)
             },
         ),
         Topic(
