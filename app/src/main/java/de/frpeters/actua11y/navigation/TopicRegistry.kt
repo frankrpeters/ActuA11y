@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
+import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
@@ -116,6 +117,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 OneDimensionalCollectionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "genuine_tables",
+            category = TopicCategory.COLLECTIONS,
+            titleRes = R.string.genuine_tables_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                GenuineTablesTopic(showNaive, modifier)
             },
         ),
         Topic(

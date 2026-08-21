@@ -35,6 +35,13 @@ into a tagged release.
   any Lazy layout); Naive relies on the unmodified default, which is confidently wrong rather than
   simply absent. The override behaviour is confirmed by instrumented test on a real device, not
   just assumed from the API.
+- Genuine Tables topic (`ui/topic/genuinetables/`) — a hand-built three-column inventory table
+  (Compose has no table composable). Unlike `LazyColumn`, a plain `Column` supplies no
+  `CollectionInfo` of its own, so unlike One-Dimensional Collections, Naive here is genuine
+  silence rather than a present-but-wrong default. Better adds `CollectionInfo` to the table and
+  `CollectionItemInfo` to all 18 cells, including the header row; the developer note is explicit
+  that this API surface has no separate flag marking a cell as a header, rather than implying it
+  does.
 
 ## [0.2.0] - 2026-07-31
 
