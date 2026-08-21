@@ -86,12 +86,11 @@ Discovered building the Focus After Navigation topic (2026-08-19), confirmed on 
 
 ## Compose Collection Semantics — Established By Trial
 
-Discovered building the One-Dimensional Collections and Genuine Tables topics (2026-08-21),
-confirmed by reading `foundation-android-1.8.1-sources.jar` and by instrumented test on a real
-device (Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any future topic touching
-`collectionInfo`/`collectionItemInfo` — in particular "Lazy list pitfalls" (sticky headers, mixed
-item types) and "Grids that are not tables" (§3.2.1, still blocked on its own open question) in
-the topic catalogue.
+Discovered building the One-Dimensional Collections, Genuine Tables, and Lazy List Pitfalls
+topics (2026-08-21), confirmed by reading `foundation-android-1.8.1-sources.jar` and by
+instrumented test on a real device (Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any
+future topic touching `collectionInfo`/`collectionItemInfo` — in particular "Grids that are not
+tables" (§3.2.1, still blocked on its own open question) in the topic catalogue.
 
 - **`LazyColumn`/`LazyRow` automatically attach `CollectionInfo` semantics to themselves with no
   app code at all** (`LazyLayoutSemanticState.kt`) — but the value is **unconditionally**
@@ -117,6 +116,37 @@ the topic catalogue.
 - **`CollectionItemInfo` in this Compose version carries only `(rowIndex, rowSpan, columnIndex,
   columnSpan)`** — no separate flag marking a cell as a header. A table's header row can only be
   represented as "row 0"; there is no framework-level signal distinguishing it from a data row.
+- **`LazyListScope.items(count) { index -> … }`'s `index` parameter is local to that one `items()`
+  call, not a position in the whole list.** Confirmed by reading
+  `LazyLayoutIntervalContent.kt`: `val localIntervalIndex = globalIndex - interval.startIndex`.
+  A list built from several `stickyHeader()`/`items()` block pairs (one per section) sees this
+  index reset to 0 at the start of every block — wiring it directly into a `CollectionItemInfo`
+  row index is silently wrong the moment a list has more than one such block, even though the same
+  pattern is safe for a single `items(count = N)` call.
+- **`stickyHeader()`'s own content lambda *does* receive a correct, framework-computed global
+  index**, unlike `items()`. Reading `LazyListIntervalContent.kt` shows
+  `headerIndex = intervals.size` captured at registration time; `IntervalList.kt` documents
+  `size` as the total item count across all intervals, not the number of interval calls — so this
+  really is the header's true flat position, not a coincidence. It answers a different question
+  than a content row's index does, and the two must not be conflated.
+
+---
+
+## Compose Semantics Merge Order — Established By Trial
+
+Discovered building the Composite Controls topic (2026-08-21), confirmed by reading
+`foundation-android-1.8.1-sources.jar`. Relevant to any future topic combining
+`mergeDescendants = true` with `traversalIndex`, or otherwise reasoning about the order text ends
+up concatenated in in a single merged accessibility node.
+
+- **Within one merged semantics node, the order child text/properties are concatenated in follows
+  structural composition order, never `traversalIndex`.** Reading `SemanticsNode.kt`'s
+  `mergeConfig`/`forEachUnmergedChild` shows the merge walk iterates `zSortedChildren` (paint
+  order) and never reads `traversalIndex` at all. `traversalIndex` only reorders which *separate*
+  sibling node TalkBack visits next; it has no effect on the order properties merge into inside a
+  node that is already merged. Do not expect adding `traversalIndex` inside an already-merged
+  subtree to reorder its announced text — it silently does nothing there, for a different reason
+  than the "no enclosing traversal group" case the Traversal Index topic covers.
 
 ---
 
