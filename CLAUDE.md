@@ -84,6 +84,42 @@ Discovered building the Focus After Navigation topic (2026-08-19), confirmed on 
 
 ---
 
+## Compose Collection Semantics — Established By Trial
+
+Discovered building the One-Dimensional Collections and Genuine Tables topics (2026-08-21),
+confirmed by reading `foundation-android-1.8.1-sources.jar` and by instrumented test on a real
+device (Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any future topic touching
+`collectionInfo`/`collectionItemInfo` — in particular "Lazy list pitfalls" (sticky headers, mixed
+item types) and "Grids that are not tables" (§3.2.1, still blocked on its own open question) in
+the topic catalogue.
+
+- **`LazyColumn`/`LazyRow` automatically attach `CollectionInfo` semantics to themselves with no
+  app code at all** (`LazyLayoutSemanticState.kt`) — but the value is **unconditionally**
+  `CollectionInfo(rowCount = -1, columnCount = 1)` (transposed for `LazyRow`), regardless of
+  whether the real item count is small, static, and fully known. It is never derived from the
+  actual item count. A correct "item 8 of 24" announcement therefore always requires an explicit
+  override, never just "use `LazyColumn` and it works" — even for a list with no pagination at
+  all.
+- **A plain `Column`/`Row` supplies no `CollectionInfo` of its own** — unlike `LazyColumn`, there
+  is nothing to accidentally rely on and nothing to override; it must be added from scratch.
+- **No Lazy layout ever auto-supplies per-item `CollectionItemInfo`**, confirmed by grepping
+  Compose Foundation's entire source tree for every call site: there are none, for any layout
+  (column, row, grid, staggered grid, pager). It must be added by hand to every item, in every
+  list, always.
+- **An explicit `Modifier.semantics { collectionInfo = … }` layered onto a `LazyColumn` does
+  cleanly override its internal default**, confirmed by instrumented test reading the resulting
+  semantics node back, not just assumed from the API. This resolves the override question for the
+  plain-list case; the equivalent question for `LazyVerticalGrid` (§3.2.1 / Topic 7) is different
+  in shape (grid semantics that actively assert 2D structure, not just an "unknown" placeholder)
+  and is still an open question requiring its own device verification — do not assume the list
+  finding transfers automatically just because the underlying modifier plumbing
+  (`LazyLayoutSemanticsModifierNode`) is shared.
+- **`CollectionItemInfo` in this Compose version carries only `(rowIndex, rowSpan, columnIndex,
+  columnSpan)`** — no separate flag marking a cell as a header. A table's header row can only be
+  represented as "row 0"; there is no framework-level signal distinguishing it from a data row.
+
+---
+
 ## Project Structure
 
 ```
