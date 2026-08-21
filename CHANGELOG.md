@@ -9,6 +9,18 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Lazy List Pitfalls topic (`ui/topic/lazylistpitfalls/`) — an alphabetically-grouped contacts
+  list with sticky letter headers built from several `stickyHeader()`/`items()` block pairs
+  rather than a single `items(count = N)` call. Better precomputes each contact's row index
+  across the whole flattened list rather than trusting the `index` parameter `items()` hands to
+  each block, which reading `LazyLayoutIntervalContent.kt` confirms is local to that one call and
+  resets to 0 at the start of every letter group — the exact mistake that would silently corrupt
+  positional announcements in a naive fix attempt. Naive has no `CollectionInfo` override,
+  `CollectionItemInfo`, or `heading()` on the section headers at all. This opens requirements
+  §3.2's fourth and final topic.
+
 ## [0.3.0] - 2026-08-21
 
 ### Added

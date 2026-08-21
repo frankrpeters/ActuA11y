@@ -24,6 +24,7 @@ import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopi
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
+import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
@@ -126,6 +127,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 GenuineTablesTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "lazy_list_pitfalls",
+            category = TopicCategory.COLLECTIONS,
+            titleRes = R.string.lazy_list_pitfalls_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                LazyListPitfallsTopic(showNaive, modifier)
             },
         ),
         Topic(
