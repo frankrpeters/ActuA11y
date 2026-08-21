@@ -27,6 +27,7 @@ import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
+import de.frpeters.actua11y.ui.topic.minimumtouchtarget.MinimumTouchTargetTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
@@ -166,6 +167,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 SelectableIconListsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "minimum_touch_target",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.minimum_touch_target_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                MinimumTouchTargetTopic(showNaive, modifier)
             },
         ),
         Topic(

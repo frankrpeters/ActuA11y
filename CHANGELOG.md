@@ -46,6 +46,18 @@ into a tagged release.
   Naive supplies only the `contentDescription` — the more obvious half — leaving every swatch
   without a selected state, role, or group, modelling the "implementations usually supply one"
   gap named in requirements §3.3.
+- Minimum Touch Target topic (`ui/topic/minimumtouchtarget/`) — a delete action, Naive as a bare
+  `Modifier.clickable` on a `Box` explicitly constrained to 24dp, Better as a plain `IconButton`
+  with nothing else added. Building this surfaced a real requirements-doc-vs-observed-behaviour
+  disagreement, reported rather than silently resolved: in this Compose version, `touchBoundsInRoot`
+  auto-expands to 48dp for *any* clickable node (`SemanticsModifierNode.kt`'s `useMinimumTouchTarget
+  = getOrNull(SemanticsActions.OnClick) != null`, combined with `ViewConfiguration
+  .minimumTouchTargetSize`'s 48dp default), confirmed on the isolated Naive icon by instrumented
+  test. `IconButton`'s `minimumInteractiveComponentSize()` instead expands real, reserved *layout*
+  bounds (40dp measured) that a neighbour cannot encroach on — the genuine remaining difference.
+  Developer notes and tests reflect this verified reality rather than the topic's original premise;
+  a redesign to demonstrate the real risk (touch-region clipping in a row of packed icons) is
+  logged in the topic backlog for later.
 
 ## [0.3.0] - 2026-08-21
 
