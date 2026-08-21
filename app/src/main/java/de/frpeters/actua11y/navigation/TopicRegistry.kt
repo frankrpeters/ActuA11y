@@ -23,6 +23,7 @@ import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
+import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
@@ -106,6 +107,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 PinShowHideTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "one_dimensional_collections",
+            category = TopicCategory.COLLECTIONS,
+            titleRes = R.string.one_dimensional_collections_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                OneDimensionalCollectionsTopic(showNaive, modifier)
             },
         ),
         Topic(

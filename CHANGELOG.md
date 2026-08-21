@@ -27,6 +27,14 @@ into a tagged release.
   expresses the reveal/hide state as a `Role.Switch` with an explicit `stateDescription` instead
   of a button whose own label swaps. The developer note documents what remains open rather than
   claiming it fully solved — see the note for the `TextObfuscationMode` nuance.
+- One-Dimensional Collections topic (`ui/topic/onedimensionalcollections/`) — a 24-item list,
+  opening requirements §3.2 (Collections). Both versions use a plain `LazyColumn`, which
+  automatically attaches its own `CollectionInfo` semantics regardless — but always reports
+  `rowCount = -1` ("unknown"), even for a small, fully-known, static list. Better overrides that
+  default with the real count and adds `CollectionItemInfo` to every item (never auto-supplied by
+  any Lazy layout); Naive relies on the unmodified default, which is confidently wrong rather than
+  simply absent. The override behaviour is confirmed by instrumented test on a real device, not
+  just assumed from the API.
 
 ## [0.2.0] - 2026-07-31
 
