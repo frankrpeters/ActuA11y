@@ -18,8 +18,17 @@ into a tagged release.
   each block, which reading `LazyLayoutIntervalContent.kt` confirms is local to that one call and
   resets to 0 at the start of every letter group — the exact mistake that would silently corrupt
   positional announcements in a naive fix attempt. Naive has no `CollectionInfo` override,
-  `CollectionItemInfo`, or `heading()` on the section headers at all. This opens requirements
-  §3.2's fourth and final topic.
+  `CollectionItemInfo`, or `heading()` on the section headers at all. This closes out requirements
+  §3.2 (Collections).
+- Input That Is Actually a Button topic (`ui/topic/inputasbutton/`) — an appointment date field
+  styled like a text field but never meant to be typed into. Better replaces the field entirely
+  with `OutlinedTextFieldDefaults.DecorationBox` — the visual shell with no editable-text core
+  underneath — carrying `Role.Button` and a `contentDescription` composed as "label, value", and
+  returns focus to the field once the date picker dialog closes using the same two-step fix
+  established by the Focus After Navigation topic. Naive uses a real `OutlinedTextField(readOnly =
+  true)`, which still exposes cursor and text-selection actions that do nothing; the developer
+  note also covers `enabled = false`, the other common wrong attempt, in prose. This opens
+  requirements §3.3 (Controls and Interaction).
 
 ## [0.3.0] - 2026-08-21
 

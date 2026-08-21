@@ -24,6 +24,7 @@ import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopi
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
+import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
@@ -136,6 +137,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 LazyListPitfallsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "input_as_button",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.input_as_button_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                InputAsButtonTopic(showNaive, modifier)
             },
         ),
         Topic(
