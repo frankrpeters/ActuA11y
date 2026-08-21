@@ -9,6 +9,8 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-21
+
 ### Added
 
 - Pane Titles topic (`ui/topic/panetitles/`) — a Summary/Details view switcher whose content
@@ -42,6 +44,11 @@ into a tagged release.
   `CollectionItemInfo` to all 18 cells, including the header row; the developer note is explicit
   that this API surface has no separate flag marking a cell as a header, rather than implying it
   does.
+
+### Changed
+
+- `CLAUDE.md`: corrected a stale reference to requirements §9 (Open Questions is §10; the
+  requirements document was renumbered after that cross-reference was written).
 
 ## [0.2.0] - 2026-07-31
 
@@ -101,6 +108,7 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...dev
+[0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/frankrpeters/ActuA11y/releases/tag/v0.1.0
