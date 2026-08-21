@@ -246,7 +246,7 @@ This is **not** the same as the automated accessibility scanning deferred in req
   subject.
 - Features above `minSdk` are annotated `@RequiresApi`, and the developer note states the
   requirement.
-- Do not implement topics flagged with open questions in requirements §9 until the question
+- Do not implement topics flagged with open questions in requirements §10 until the question
   is resolved.
 
 ---
