@@ -28,11 +28,15 @@ import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
+import de.frpeters.actua11y.ui.topic.liveregions.LiveRegionsTopic
 import de.frpeters.actua11y.ui.topic.minimumtouchtarget.MinimumTouchTargetTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
+import de.frpeters.actua11y.ui.topic.progressandsliders.ProgressAndSlidersTopic
 import de.frpeters.actua11y.ui.topic.selectableiconlists.SelectableIconListsTopic
+import de.frpeters.actua11y.ui.topic.statevscontentdescription.StateVsContentDescriptionTopic
+import de.frpeters.actua11y.ui.topic.switchplatformvscustom.SwitchPlatformVsCustomTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 
@@ -189,12 +193,48 @@ object TopicRegistry {
             },
         ),
         Topic(
+            id = "switch_platform_vs_custom",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.switch_platform_vs_custom_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                SwitchPlatformVsCustomTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "progress_and_sliders",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.progress_and_sliders_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ProgressAndSlidersTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
             id = "content_descriptions",
             category = TopicCategory.TEXT,
             titleRes = R.string.content_descriptions_title,
             supportsNaive = true,
             content = { showNaive, modifier ->
                 ContentDescriptionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "state_vs_content_description",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.state_vs_content_description_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                StateVsContentDescriptionTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "live_regions",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.live_regions_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                LiveRegionsTopic(showNaive, modifier)
             },
         ),
     )

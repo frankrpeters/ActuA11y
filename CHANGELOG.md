@@ -11,6 +11,34 @@ into a tagged release.
 
 ### Added
 
+- Switch: Platform vs. Custom topic (`ui/topic/switchplatformvscustom/`, catalogue Topic 43) — a
+  Do Not Disturb toggle drawn from scratch with `Canvas`, identical pixels in both versions.
+  Naive attaches a bare `Modifier.clickable`, which registers a real click action (confirmed via
+  `Clickable.kt`'s `AbstractClickableNode.applySemantics()`) but supplies no `Role.Switch`,
+  `ToggleableState`, or label — a control TalkBack can activate but say nothing about. Better
+  replaces it with `Modifier.toggleable(role = Role.Switch)` plus an explicit
+  `contentDescription`, restoring by hand exactly what Topic 11 (Composite Controls) gets for
+  free from a real, unmodified `Switch()`. This is the layered-conformance model the rest of the
+  catalogue's platform controls quietly rely on, made explicit for the first time.
+- State vs. Content Description topic (`ui/topic/statevscontentdescription/`, Topic 18) — a "Show
+  details" disclosure. Naive rebuilds `contentDescription` as `"$label, $state"` on every toggle,
+  folding a control's stable name and its changing state into one string; Better keeps
+  `contentDescription` constant and carries the changing half in `stateDescription` instead,
+  confirmed by an instrumented test reading both properties across a real click rather than one
+  snapshot. Opens requirements §3.4 (Text and Announcement).
+- Live Regions topic (`ui/topic/liveregions/`, Topic 19) — a flight status display. Better marks
+  the status `Text` `liveRegion = LiveRegionMode.Polite`, so a status change announces itself
+  without requiring focus or a full navigation event; Naive carries no live region at all, so the
+  same change is visually obvious and audibly silent. The developer note also covers two nuances
+  not built into the demo itself: a node leaving composition announces nothing, and identical
+  text does not re-announce, since the underlying change detection is a text diff.
+- Progress and Sliders topic (`ui/topic/progressandsliders/`, Topic 16) — a hand-built upload
+  progress bar (two coloured `Box`es, no platform composable). Naive carries no semantics at all,
+  so the bar is not even a stop during a TalkBack swipe; Better adds
+  `progressBarRangeInfo = ProgressBarRangeInfo(current, range)` plus a `contentDescription`,
+  confirmed by an instrumented test asserting `current` tracks the same value the bar's visual
+  width is drawn from after a real state change.
+
 - Lazy List Pitfalls topic (`ui/topic/lazylistpitfalls/`) — an alphabetically-grouped contacts
   list with sticky letter headers built from several `stickyHeader()`/`items()` block pairs
   rather than a single `items(count = N)` call. Better precomputes each contact's row index
