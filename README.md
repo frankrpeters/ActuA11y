@@ -47,7 +47,7 @@ Some topics have no honest naive counterpart — where the naive version would s
 
 ## Coverage
 
-Thirty-six topics across seven areas. Not all are implemented yet.
+Forty-five topics across seven areas, nine of them added as EN 301 549 V4.1.1 and WCAG 2.2 become relevant. Not all are implemented yet.
 
 <details>
 <summary><strong>Structure and traversal</strong> — how a screen reader moves through a screen</summary>
@@ -68,37 +68,39 @@ Includes a rule that Android's own defaults get wrong: a visual grid whose colum
 <details>
 <summary><strong>Controls and interaction</strong> — when a thing is not the thing it looks like</summary>
 
-Inputs that are actually buttons (date pickers, and why `readOnly` and `enabled = false` both fail) · composite controls that should be one element instead of three · selectable icon lists · minimum touch targets · disabled elements · custom actions · progress and sliders
+Inputs that are actually buttons (date pickers, and why `readOnly` and `enabled = false` both fail) · composite controls that should be one element instead of three · selectable icon lists · minimum touch targets · disabled elements · custom actions · progress and sliders · a switch drawn by hand instead of Android's own, and everything that stops being free the moment you do that · dragging movements with no pointer-free alternative
 
 </details>
 
 <details>
 <summary><strong>Text and announcement</strong> — what gets said, and when</summary>
 
-Where `contentDescription` belongs and where it silently breaks things · state versus content description · live regions · verbatim strings for phone numbers and postcodes · selectable text · error semantics
+Where `contentDescription` belongs and where it silently breaks things · state versus content description · live regions · verbatim strings for phone numbers and postcodes · selectable text · error semantics · naming the same action the same way everywhere it appears
 
 </details>
 
 <details>
 <summary><strong>Forms and input</strong></summary>
 
-Field labelling · password fields and the show/hide button · validation, announcement, and focus · autofill hints · IME actions
+Field labelling · password fields and the show/hide button · validation, announcement, and focus · autofill hints · IME actions · not asking twice for information already given · authentication that doesn't rely on a cognitive-function test
 
 </details>
 
 <details>
 <summary><strong>Visual and motor</strong></summary>
 
-Keyboard focus indicators · keyboard-only operation · font scale to 200% · colour contrast and colour independence · dark mode · reduced motion · modal surfaces
+Keyboard focus indicators · keyboard-only operation · font scale to 200% and the system Bold Text setting · colour contrast and colour independence · dark mode · reduced motion · modal surfaces · a focused field a fixed bar or the keyboard is not allowed to hide
 
 </details>
 
 <details>
 <summary><strong>Interop</strong></summary>
 
-Repairing accessibility on a legacy `View` wrapped in `AndroidView` — because most real codebases are hybrid, and the pure-Compose answer isn't always available.
+Repairing accessibility on a legacy `View` wrapped in `AndroidView` — because most real codebases are hybrid, and the pure-Compose answer isn't always available. Also a `WebView`, and why its content is judged under different accessibility rules than a page in a browser.
 
 </details>
+
+Two more exist only as short "this doesn't apply to native software" notes, correcting a common mistake when a web accessibility checklist gets carried over unchanged.
 
 Each screen carries a plain-language description, a short "what to try", the live demonstration, and a collapsible developer note with the APIs and the reasoning. The developer note is present on both versions — on the naive one, it explains what's missing and what it costs.
 

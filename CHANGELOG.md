@@ -9,13 +9,9 @@ into a tagged release.
 
 ## [Unreleased]
 
-### Added
+## [0.4.0] - 2026-09-01
 
-- `TESTING.md` — a reader-facing explanation of what each level of accessibility testing actually
-  catches and requires: static analysis (Lint), Compose semantics tree assertions, the
-  Accessibility Test Framework (`AccessibilityChecks`/Accessibility Scanner), and real assistive
-  technology. Written for anyone building their own app, not only contributors to this one.
-  Cross-linked from `README.md`, `CLAUDE.md`, and requirements §8.
+### Added
 
 - Switch: Platform vs. Custom topic (`ui/topic/switchplatformvscustom/`, catalogue Topic 43) — a
   Do Not Disturb toggle drawn from scratch with `Canvas`, identical pixels in both versions.
@@ -44,7 +40,11 @@ into a tagged release.
   `progressBarRangeInfo = ProgressBarRangeInfo(current, range)` plus a `contentDescription`,
   confirmed by an instrumented test asserting `current` tracks the same value the bar's visual
   width is drawn from after a real state change.
-
+- `TESTING.md` — a reader-facing explanation of what each level of accessibility testing actually
+  catches and requires: static analysis (Lint), Compose semantics tree assertions, the
+  Accessibility Test Framework (`AccessibilityChecks`/Accessibility Scanner), and real assistive
+  technology. Written for anyone building their own app, not only contributors to this one.
+  Cross-linked from `README.md`, `CLAUDE.md`, and requirements §8.
 - Lazy List Pitfalls topic (`ui/topic/lazylistpitfalls/`) — an alphabetically-grouped contacts
   list with sticky letter headers built from several `stickyHeader()`/`items()` block pairs
   rather than a single `items(count = N)` call. Better precomputes each contact's row index
@@ -117,6 +117,9 @@ into a tagged release.
   already makes a genuine naive counterpart impossible to build without breaking a structural
   invariant. Extended the `Topic` registry schema (§4.7) with optional `enClause`/`wcagVersion`/
   `bindingFrom` fields to support the new topics.
+- `README.md`'s Coverage section updated for the expanded catalogue — topic count and per-category
+  lists now include the nine topics added above.
+- AGP 9.3.1 → 9.3.2.
 
 ## [0.3.0] - 2026-08-21
 
@@ -217,7 +220,8 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...dev
+[0.4.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/frankrpeters/ActuA11y/releases/tag/v0.1.0
