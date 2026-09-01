@@ -1,6 +1,6 @@
 # ActuA11y — Requirements Document
 
-**Version:** 0.3
+**Version:** 0.4
 **Platform:** Android
 **Language:** Kotlin
 **UI framework:** Jetpack Compose (exclusively; see §7)
@@ -14,6 +14,11 @@
 > corrected.
 > **Changes from 0.2:** topic registry (§4.7); lint suppression convention (§7); semantics
 > testing brought into scope (§8); `minSdk` discrepancy recorded (§9).
+> **Changes from 0.3:** WebView accessibility moves into scope (§3.7, Topic 37) and out of §9.
+> It was excluded originally because it appeared to require satisfying the much larger, partly
+> divergent Clause 9 (Web) ruleset in parallel with Clause 11 (Software). EN 301 549 V4.1.1
+> clarifies that a WebView embedded in native software is evaluated under Clause 11 only —
+> Clause 9 does not apply in parallel — which removes the original reason for exclusion.
 
 ---
 
@@ -105,7 +110,7 @@ field with its own meaning — genuine data tables.
 | 10 | Input that is actually a button | `Role.Button`, `OutlinedTextFieldDefaults.DecorationBox` | Yes | **See §3.3.1.** |
 | 11 | Composite controls | `toggleable`, `selectable`, `mergeDescendants` | Yes | **See §3.3.2.** |
 | 12 | Selectable icon lists | `selectable`, `selectableGroup`, `Role.RadioButton` | Yes | Without `selectableGroup()` the "2 of 5" positional context is lost. Icon-only items need both a description and a selected state; implementations usually supply one. |
-| 13 | Minimum touch target | `minimumInteractiveComponentSize()` | Yes | `IconButton` enforces 48dp. A bare `Modifier.clickable` on a 24dp `Icon` does not. Invisible in the layout inspector; obvious to a user with a tremor. |
+| 13 | Minimum touch target | `minimumInteractiveComponentSize()` | Yes | WCAG 2.2 SC 2.5.8's actual floor is 24dp with exceptions; `IconButton`'s 48dp is Android's own platform guideline exceeding that floor, not the spec itself. Invisible in the layout inspector; obvious to a user with a tremor. |
 | 14 | Disabled elements | `semantics { disabled() }` | Yes | A merely non-clickable element is skipped silently. One marked `disabled()` announces as disabled. Very different experience. |
 | 15 | Custom actions | `customActions`, `CustomAccessibilityAction` | **No** — §4.5 | Swipe-only actions (dismiss, archive) with no equivalent in the TalkBack local context menu are unreachable. |
 | 16 | Progress and sliders | `progressBarRangeInfo` | Yes | Custom progress indicators and sliders that announce nothing. |
@@ -211,11 +216,17 @@ on API 33 behaves differently on API 34 and later. This topic demonstrates a beh
 difference across the supported API range, and the developer note should state which API levels
 were used for verification.
 
+The same topic should also cover the system **Bold Text** setting (API 31+,
+`Configuration.fontWeightAdjustment`) as a second, independent axis, distinct from scale, and
+easy to miss if a screen hardcodes `FontWeight` rather than reading it from the system
+configuration. Too thin a difference to justify its own topic.
+
 ### 3.7 Interop
 
 | # | Topic | Primary APIs | Naive counterpart | Central teaching point |
 |---|---|---|---|---|
 | 36 | Fixing accessibility on a wrapped View | `AndroidView`, `ViewCompat.setAccessibilityDelegate` | Yes | See below. |
+| 37 | WebView accessibility scope | `WebView`, `AndroidView` | Yes | Embedded WebView content is evaluated under Clause 11, not Clause 9 — the two do not apply in parallel. **See §3.7.1.** |
 
 Most production Android codebases are hybrid rather than pure Compose. A screen showing how to
 repair the accessibility of a legacy `View` hosted inside `AndroidView` — supplying semantics
@@ -225,6 +236,59 @@ screens in the project.
 
 This is the sole and deliberate exception to the Compose-only rule in §7. The exception exists
 because interop *is* the topic, not because Views are being demonstrated as an alternative.
+
+#### 3.7.1 WebView accessibility and clause scope
+
+A WebView embedded in native software is evaluated under Clause 11 (Software), not Clause 9
+(Web) — the two do not apply in parallel. Modern Chromium-based WebView already exposes the
+loaded page's own DOM accessibility tree to TalkBack automatically; that is not something native
+code in this app can improve on, and this topic should say so plainly rather than pretending to
+fix it.
+
+What remains genuinely a native-software responsibility — and is where a real implementation
+gets this wrong — is how the WebView participates in the *surrounding native* accessibility
+tree: its place in native traversal and focus order, an accessible native loading/error/retry
+state layered over it, and not implying via role or label that it is a native control when it
+isn't. Naive: a `WebView` dropped in with defaults, no consideration of focus order relative to
+neighbouring native controls, no accessible error/retry state. Better: correct traversal
+placement and an accessible native error/retry state. The developer note must be explicit about
+the boundary: the accessibility of the HTML content itself is Clause 9's remit, belongs to
+whatever page is loaded, and is out of scope for this app to fix or demonstrate.
+
+### 3.8 EN 301 549 V4.1.1 / WCAG 2.2 additions
+
+Topics 38–43 were identified after the original 1–37 catalogue above was drafted, sourced from
+the EN 301 549 V4.1.1 update (which pulls in WCAG 2.2). They are collected here rather than
+folded into their nearest thematic subsection, so that none of the existing topic numbers —
+several of which are referenced elsewhere in this document (§4.5, §4.6, §7, §10) — need to
+shift. `TopicRegistry` (§4.7) is a flat list regardless of this document's table groupings, so
+the split has no code implications.
+
+| # | Topic | Primary APIs | Naive counterpart | Central teaching point |
+|---|---|---|---|---|
+| 38 | Dragging movements | `pointerInput`, `detectDragGesturesAfterLongPress`, `CustomAccessibilityAction` | Yes | WCAG 2.2 SC 2.5.7. A drag-only reorder gesture has no non-pointer equivalent. Better adds a custom action pair ("move up" / "move down") plus visible arrow buttons as the pointer-free alternative. |
+| 39 | Focus not obscured (minimum) | `imePadding`, `BringIntoViewRequester` | Yes | WCAG 2.2 SC 2.4.11. A fixed bottom bar or the IME itself can fully cover the focused field. Verify with a physical or external keyboard, not just TalkBack — the failure has nothing to do with screen-reader focus. |
+| 40 | Redundant entry | hoisted form state | Yes | WCAG 2.2 SC 3.3.7. A multi-step form must not ask the user to re-supply information already given earlier in the same process. Better pre-fills or offers the earlier value as a selectable option. |
+| 41 | Accessible authentication (minimum) | `ContentType.NewPassword` / `Username`, `KeyboardOptions` | Yes | WCAG 2.2 SC 3.3.8. No step may rely solely on a cognitive-function test (an arithmetic CAPTCHA); paste and password-manager autofill must be allowed, with a biometric alternative offered where the platform supports one. |
+| 42 | Consistent identification | shared string resources | Yes | WCAG 2.2 SC 3.2.4. The same action must carry the same name and description everywhere it appears. Naive names one action differently on two screens; Better draws both from one shared string resource. |
+| 43 | Switch: platform vs. custom | `Switch`, `Modifier.toggleable`, `Role.Switch`, `Canvas` | Yes | Not tied to a single success criterion — the layered-conformance model itself. An unmodified `Switch()` gets role, toggle state, and the click action from the platform for free; a custom-drawn toggle gets none of it until reimplemented by hand. Explains why "Compose already handles this" stops being true the moment the component is redrawn. Conceptually a prerequisite for Topic 11 (Composite Controls), which assumes the platform control and only adds the merge step. |
+| 44 | Void clause: Consistent Help | — | **No** — §4.5 | WCAG 2.2 SC 3.2.6 is void for non-web software under EN 301 549. Content-only note screen correcting the common mistake of carrying a web accessibility checklist over to a native app unchanged. |
+| 45 | Void clause: Parsing | — | **No** — §4.5 | SC 4.1.1 (Parsing) was withdrawn outright in WCAG 2.2. Content-only note screen for the same reason as Topic 44 — flags a stale checklist item rather than demonstrating a pattern. |
+
+**Considered and not added — Screen Titled (2.4.2).** Every screen in this app already gets a
+title from the persistent, registry-driven app bar (§4.2, §4.7); there is no code path by which
+a topic screen could omit one without breaking the two structural invariants at the top of
+`CLAUDE.md`. A "naive" counterpart would have to fake the failure rather than genuinely
+reproduce it, which the project's own conventions treat as worse than not having the topic at
+all. Not building this one.
+
+**Folded into existing topics rather than added separately:**
+
+- **Target size (minimum), WCAG 2.2 SC 2.5.8** — folded into Topic 13 (Minimum touch target,
+  §3.3), whose teaching point now cites the SC directly. Relevant to that topic's pending
+  redesign — see the topic backlog.
+- **Bold Text** — folded into Topic 31 (Font scale, §3.6.1) as a second, independent axis
+  alongside non-linear `sp` scaling. Too thin for its own topic.
 
 ---
 
@@ -302,7 +366,7 @@ disappears between screens is its own navigation annoyance, and the explanation 
 informative. `semantics { disabled() }` is required in addition to the disabled parameter, so
 the control is announced rather than skipped (topic 14).
 
-Currently identified: topics 15, 20, and 22.
+Currently identified: topics 15, 20, 22, 44, and 45.
 
 ### 4.6 Escape route — hard constraint
 
@@ -335,6 +399,9 @@ data class Topic(
     val category: TopicCategory,
     @StringRes val titleRes: Int,
     val supportsNaive: Boolean,
+    val enClause: String? = null,       // e.g. "11.2.5.8"; null where no single clause applies
+    val wcagVersion: String? = null,    // "2.1" | "2.2"; null where not WCAG-derived
+    val bindingFrom: String? = null,    // e.g. "EN 301 549 V4.1.1"; null if binding today
     val content: @Composable (showNaive: Boolean, modifier: Modifier) -> Unit
 ) {
     val route: String get() = "topic/$id"
@@ -347,6 +414,11 @@ object TopicRegistry {
 ```
 
 Adding a topic is therefore: create the package, append one registry entry. Nothing else.
+
+The three optional fields above support topics 38–43 (§3.8); most existing topics leave them
+null. A UI badge surfacing `bindingFrom` (e.g. "binding from EN 301 549 V4.1.1") is a candidate
+future enhancement, not required by this schema change — logged in the topic backlog rather than
+mandated here.
 
 **Rationale:** thirty-six topics maintained across a sealed route class, a nav graph, a title
 lookup, a toggle-support lookup and a category list is five opportunities for drift per topic.
@@ -443,7 +515,6 @@ way.
 - Localisation. String resources are used throughout regardless, so adding German later is
   additive rather than a rewrite.
 - Tablet and large-screen layouts.
-- WebView accessibility.
 - TV and Automotive profiles.
 - A companion documentation website.
 

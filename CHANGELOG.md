@@ -68,6 +68,22 @@ into a tagged release.
   present-and-false, by instrumented test. The checkbox itself reuses the Composite Controls
   topic's established toggleable pattern unchanged.
 
+### Changed
+
+- `docs/ActuA11y_Requirements.md` (0.3 → 0.4): WebView accessibility moves into scope (§9 →
+  §3.7, Topic 37) now that EN 301 549 V4.1.1 clarifies a WebView embedded in native software is
+  evaluated under Clause 11 only, removing the original reason for exclusion (needing to satisfy
+  the much larger, partly divergent Clause 9 ruleset in parallel). Added Topics 38–45 (§3.8),
+  sourced from the EN 301 549 V4.1.1 / WCAG 2.2 update: Dragging Movements, Focus Not Obscured
+  (Minimum), Redundant Entry, Accessible Authentication (Minimum), Consistent Identification,
+  Switch: Platform vs. Custom (the layered-conformance model, not tied to a single success
+  criterion), and two void-clause note topics (Consistent Help, Parsing). Target Size (Minimum)
+  and Bold Text were folded into existing Topics 13 and 31 rather than added separately; Screen
+  Titled was considered and explicitly not added, since the app's own registry-driven app bar
+  already makes a genuine naive counterpart impossible to build without breaking a structural
+  invariant. Extended the `Topic` registry schema (§4.7) with optional `enClause`/`wcagVersion`/
+  `bindingFrom` fields to support the new topics.
+
 ## [0.3.0] - 2026-08-21
 
 ### Added
