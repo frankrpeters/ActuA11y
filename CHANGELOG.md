@@ -11,6 +11,12 @@ into a tagged release.
 
 ### Added
 
+- `TESTING.md` — a reader-facing explanation of what each level of accessibility testing actually
+  catches and requires: static analysis (Lint), Compose semantics tree assertions, the
+  Accessibility Test Framework (`AccessibilityChecks`/Accessibility Scanner), and real assistive
+  technology. Written for anyone building their own app, not only contributors to this one.
+  Cross-linked from `README.md`, `CLAUDE.md`, and requirements §8.
+
 - Switch: Platform vs. Custom topic (`ui/topic/switchplatformvscustom/`, catalogue Topic 43) — a
   Do Not Disturb toggle drawn from scratch with `Canvas`, identical pixels in both versions.
   Naive attaches a bare `Modifier.clickable`, which registers a real click action (confirmed via

@@ -299,6 +299,10 @@ semantics tree can be asserted against at all. Comment them accordingly.
 This is **not** the same as the automated accessibility scanning deferred in requirements §8
 (`AccessibilityChecks`), which remains out of scope.
 
+See `TESTING.md` (repo root) for the full breakdown of what each level of accessibility testing
+catches and requires — it's written for readers building their own app, not just this one, and is
+the canonical explanation to point to rather than re-deriving in conversation.
+
 ---
 
 ## General Rules

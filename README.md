@@ -158,6 +158,8 @@ Instrumented tests assert against the Compose semantics tree — that the access
 
 They are not a substitute for running the app with TalkBack on a real device. Announcement wording, announcement order, and where focus goes after content changes cannot be verified any other way. Findings confirmed on-device are marked `// VERIFIED:` in the source, together with the Compose version and API level they were checked against.
 
+See [TESTING.md](TESTING.md) for the full picture — what each level of accessibility testing actually catches, what none of them can substitute for, and a minimum viable strategy if you're applying this to your own app rather than just reading this one.
+
 ---
 
 ## Contributing

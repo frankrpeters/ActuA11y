@@ -507,6 +507,11 @@ which is a different mechanism and remains a v2 candidate.
 wording, announcement order, and focus behaviour after content swaps cannot be verified any other
 way.
 
+`TESTING.md` (repo root) is the reader-facing companion to this section — it explains the four
+testing levels this project's own choices imply (static analysis, semantics assertions, the
+Accessibility Test Framework, and real assistive technology), what each requires and catches, and
+is written for someone applying this to their own app, not only for a contributor to this one.
+
 ---
 
 ## 9. Out of Scope for v1
