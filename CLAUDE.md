@@ -334,8 +334,12 @@ the canonical explanation to point to rather than re-deriving in conversation.
      `0.y.z` while the topic catalogue in requirements §3 is incomplete; `1.0.0` once the
      author judges the reference set complete enough, which is a judgment call, not a
      mechanical trigger from "all 36 topics implemented").
-  2. Move `CHANGELOG.md`'s `[Unreleased]` section into a new dated `[X.Y.Z] - YYYY-MM-DD`
-     heading.
+  2. **Always update `README.md` and `CLAUDE.md`, not just `CHANGELOG.md`, before tagging.**
+     `README.md`'s Coverage section (topic count, per-category lists) is the most common thing
+     to drift — it has shipped stale before. `CLAUDE.md` should already be current if its
+     "Established By Trial" sections were kept up to date as topics were built, but check
+     rather than assume. Then move `CHANGELOG.md`'s `[Unreleased]` section into a new dated
+     `[X.Y.Z] - YYYY-MM-DD` heading.
   3. Merge `dev` into `main`, tag the merge commit `vX.Y.Z`, push the tag.
   4. Cut a GitHub Release from the tag with the changelog entry as its notes.
 - Claude Code should not merge to `main`, tag, or push tags without being explicitly asked to
