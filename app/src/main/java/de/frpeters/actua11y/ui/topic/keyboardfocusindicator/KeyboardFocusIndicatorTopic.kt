@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package de.frpeters.actua11y
+package de.frpeters.actua11y.ui.topic.keyboardfocusindicator
 
-import org.junit.Assert.*
-import org.junit.Test
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import de.frpeters.actua11y.R
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+@Composable
+fun KeyboardFocusIndicatorTopic(showNaive: Boolean, modifier: Modifier = Modifier) {
+    if (showNaive) {
+        KeyboardFocusIndicatorNaive(modifier)
+    } else {
+        KeyboardFocusIndicatorBetter(modifier)
     }
 }
+
+internal val ChipLabelResIds = listOf(
+    R.string.keyboard_focus_indicator_chip_archive,
+    R.string.keyboard_focus_indicator_chip_flag,
+    R.string.keyboard_focus_indicator_chip_snooze,
+)

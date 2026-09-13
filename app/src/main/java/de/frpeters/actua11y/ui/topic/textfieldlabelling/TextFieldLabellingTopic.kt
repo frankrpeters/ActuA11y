@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package de.frpeters.actua11y
+package de.frpeters.actua11y.ui.topic.textfieldlabelling
 
-import org.junit.Assert.*
-import org.junit.Test
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+@Composable
+fun TextFieldLabellingTopic(showNaive: Boolean, modifier: Modifier = Modifier) {
+    if (showNaive) {
+        TextFieldLabellingNaive(modifier)
+    } else {
+        TextFieldLabellingBetter(modifier)
     }
 }

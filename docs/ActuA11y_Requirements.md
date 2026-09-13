@@ -90,18 +90,24 @@ Two-dimensional collection semantics are reserved for layouts where a column is 
 field with its own meaning — genuine data tables.
 
 > **Source:** this rule was given to the project author by the assessor who certified a
-> professional Android application under BITV. It is stricter than what Android's own defaults
-> produce: `LazyVerticalGrid` supplies grid semantics reflecting the visual layout regardless
-> of whether the columns mean anything.
+> professional Android application under BITV.
 
-> ⚠️ **Requires empirical verification before implementation.** It is not established whether
-> applying `semantics { collectionInfo = CollectionInfo(rowCount = n, columnCount = 1) }` to a
-> `LazyVerticalGrid` cleanly overrides the internally supplied value, or whether the lazy
-> layout's own semantics node takes precedence. Verify with a real TalkBack test and record
-> the result **together with the Compose BOM version tested**. If the override does not work,
-> document the workaround (likely: a `LazyColumn` of `Row`s with manual `collectionItemInfo`)
-> as the reference implementation, and document the failed approach as well — a documented
-> dead end is worth as much as a working pattern here.
+> **Resolved 2026-09-13.** This section originally assumed `LazyVerticalGrid` supplies grid
+> semantics that confidently reflect the real visual layout regardless of whether the columns
+> mean anything — stricter than a plain list's default, and harder to override. That assumption
+> does not hold in the resolved Compose version. Reading
+> `androidx/compose/foundation/lazy/grid/LazySemantics.kt` directly shows
+> `LazyGridSemanticState.collectionInfo()` unconditionally returns
+> `CollectionInfo(rowCount = -1, columnCount = -1)` — **both dimensions unknown**, not a real 2D
+> report, with the library's own `// TODO(popam): check if this is correct` comment acknowledging
+> the gap. An instrumented test confirms this directly (Topic 7's `GridsThatAreNotTablesTopicTest`)
+> and confirms that `Modifier.semantics { collectionInfo = CollectionInfo(rowCount = n, columnCount = 1) }`
+> cleanly overrides it — the same mechanism already established for `LazyColumn` in Topic 6,
+> because both cases are overriding an *unknown* placeholder, not a confidently-asserted claim.
+> No workaround is needed; the straightforward override is the reference implementation. What
+> remains open, and is `// TODO(verify)` in Topic 7's developer note rather than assumed, is the
+> exact wording TalkBack composes for a grid overridden this way — that genuinely needs a real
+> device with TalkBack, unlike the override mechanism itself.
 
 ### 3.3 Controls and Interaction
 
@@ -160,7 +166,7 @@ inside a merged node.
 | 19 | Live regions | `liveRegion`, `LiveRegionMode` | Yes | Identical text does not re-announce. `Assertive` interrupts mid-utterance and is nearly always wrong. A node leaving composition announces nothing. |
 | 20 | announceForAccessibility | `View.announceForAccessibility` | **No** — §4.5 | Discouraged by Google; announcements are dropped during screen transitions. The demonstration is live region *versus* announcement. |
 | 21 | Verbatim strings | `VerbatimTtsAnnotation` | Yes | **See §3.4.1.** |
-| 22 | Selectable and copyable text | `SelectionContainer`, `semantics { copyText { } }` | Weak — §4.5 | `SelectionContainer` interferes with clickable children. |
+| 22 | Selectable and copyable text | `SelectionContainer`, `semantics { copyText { } }` | No — §4.5 | `SelectionContainer` interferes with clickable children. |
 | 23 | Error semantics | `semantics { error(…) }` | Yes | Validation announced as an error rather than as ordinary text. Pairs with §3.5. |
 
 #### 3.4.1 Verbatim strings and the TTS gap
@@ -185,7 +191,7 @@ a pattern that pretends the gap is closed.
 | 24 | Text field labelling | `label`, `placeholder`, `contentDescription` | Yes | When each is appropriate; placeholder-as-label is the classic failure. |
 | 25 | Password fields | `PasswordVisualTransformation`, `stateDescription` | Yes | **See §3.5.1.** |
 | 26 | Validation and error focus | `error()`, `FocusRequester` | Yes | Announcing the error, and moving focus to the offending field. |
-| 27 | Autofill hints | `ContentType` semantics | Yes | Correct hints for common field types. |
+| 27 | Autofill hints | `ContentType` semantics | Yes | **See §3.5.2.** |
 | 28 | IME actions | `KeyboardOptions`, `KeyboardActions` | Yes | Correct action button and its behaviour. |
 
 #### 3.5.1 Password fields and the reveal button
@@ -196,6 +202,25 @@ than being a static label.
 Worth surfacing in the developer note: TalkBack speaks password characters as "dot" unless
 headphones are connected. This is a deliberate security behaviour and is routinely misdiagnosed
 as a bug. Documenting it here saves someone a wasted investigation.
+
+#### 3.5.2 Autofill hints as an accessibility concern, not just a convenience
+
+Sourced from topic-backlog item 3, folded in here rather than made a separate topic — the
+existing teaching point above was thin enough to absorb it cleanly.
+
+For a visually impaired user especially, using a password manager or platform Autofill — rather
+than manually typing or memorizing credentials — is disproportionately important: manual entry of
+a complex password via TalkBack is far more error-prone and tedious than for a sighted user. Naive
+should be a hand-rolled field (or a per-box widget, like the pattern PIN Show/Hide's Naive uses)
+that declares no `ContentType`, so a password manager cannot detect or fill it, silently forcing
+exactly the users who benefit most from autofill onto the most error-prone path.
+
+Correction worth keeping in the Better developer note, caught before it became a wrong claim: this
+is not "free" on a plain `TextField` either. The baseline text-editing/IME semantics a hand-rolled
+per-box widget lacks (`EditableText`, `SetText`, standard custom actions) are what `TextField`
+gets automatically; the `ContentType` autofill declaration is opt-in work either way, on any field
+type. The Better implementation should demonstrate the explicit declaration required, not imply
+that reaching for `TextField` alone already solves this.
 
 ### 3.6 Visual and Motor
 
@@ -289,6 +314,19 @@ all. Not building this one.
   redesign — see the topic backlog.
 - **Bold Text** — folded into Topic 31 (Font scale, §3.6.1) as a second, independent axis
   alongside non-linear `sp` scaling. Too thin for its own topic.
+
+### 3.9 Findings from real-world use
+
+Unlike §3.8, these topics are not sourced from a spec update — they come from real accessibility
+bugs the project author has hit in other, non-ActuA11y work, logged as candidates before becoming
+topics. Kept in their own trailing section rather than folded into §3.8, whose own intro
+specifically ties it to the EN 301 549 V4.1.1 update; mixing the two would misstate where either
+came from. Numbered after §3.8 for the same reason §3.8 is numbered after §3.1–§3.7: nothing
+already numbered needs to shift.
+
+| # | Topic | Primary APIs | Naive counterpart | Central teaching point |
+|---|---|---|---|---|
+| 46 | Concatenated content descriptions | `contentDescription`, `\n` segmentation | Yes | A `contentDescription` built by joining several distinct pieces of information with no pauses is hard to parse at TalkBack's normal speech tempo. `\n`-separated segments make TalkBack pause between them within one description. Compounds with Topic 21's verbatim-digit problem when one of the joined segments is an identifier or number — cross-referenced there rather than re-derived. |
 
 ---
 
@@ -529,10 +567,20 @@ is written for someone applying this to their own app, not only for a contributo
 
 | # | Question | Blocks | Notes |
 |---|---|---|---|
-| 1 | Apache 2.0 header automation | Nothing | IDE file template. |
-| 2 | §3.2.1 grid override behaviour | Topic 7 | Requires device verification. |
 | 3 | Topic 35 escape-route design | Topic 35 | Required by §4.6 before implementation. |
 
 > **Resolved 2026-07-30:** `minSdk` is 28, matching this document and `app/build.gradle.kts`.
 > `CLAUDE.md` previously said 30; that was stale text from before the initial scaffold, not a
 > deliberate deviation, and has been corrected.
+
+> **Resolved 2026-09-13:** §3.2.1 grid override behaviour. See §3.2.1 itself for the full
+> account — the structural override question is confirmed by instrumented test, the same way it
+> was for `LazyColumn`; only the exact TalkBack wording remains open, tracked as `TODO(verify)` in
+> Topic 7's developer note rather than as a blocking open question, since it no longer blocks
+> building the topic.
+
+> **Resolved 2026-07-31, marked in this document 2026-09-13:** Apache 2.0 header automation.
+> Android Studio's copyright profile was fixed and every existing file retrofitted with the
+> correct header the same day — this table row was simply never updated afterward to say so.
+> One file was missed by that retrofit (`app/src/test/java/de/frpeters/actua11y/ExampleUnitTest.kt`,
+> in a source set the original grep pass didn't cover) and has now been corrected too.

@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package de.frpeters.actua11y
+package de.frpeters.actua11y.ui.topic.announceforaccessibility
 
-import org.junit.Assert.*
-import org.junit.Test
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * No naive counterpart exists for this topic (requirements §4.5) — the demonstration is
+ * `View.announceForAccessibility` versus a live region, not a naive-vs-better contrast. See
+ * `CustomActionsTopic` for the same pattern, established first.
  */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
+@Composable
+fun AnnounceForAccessibilityTopic(showNaive: Boolean, modifier: Modifier = Modifier) {
+    AnnounceForAccessibilityBetter(modifier)
 }

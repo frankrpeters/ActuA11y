@@ -9,6 +9,245 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-13
+
+### Added
+
+- Reduced Motion topic (`ui/topic/reducedmotion/`, Topic 34) — a "Show shipping details"
+  expand/collapse disclosure. Naive: the expand/collapse animation always runs at a fixed 400ms
+  duration, never reading `Settings.Global.ANIMATOR_DURATION_SCALE`. Better: reads that setting
+  once via `remember { Settings.Global.getFloat(...) }` and scales the animation's duration by it
+  — 0 collapses to instant, 1 leaves it unchanged, 2 doubles it — the same multiplier semantics
+  the platform's own View animators already use, applied by hand since Compose animations do not
+  read this setting automatically. The read is deliberately one-time (a `remember`, not a live
+  `ContentObserver`), documented as a scoped tradeoff rather than an oversight. Confirmed by an
+  instrumented test of the pure `scaledAnimationDurationMillis` function itself (scale 0 → 0,
+  scale 1 → unchanged, scale 2 → doubled) plus a toggle-reveals-content check for both versions —
+  animation duration, like Dark Mode's colour, has no representation in the semantics tree, so
+  the scaling logic is tested as a plain function rather than through a rendered node.
+
+- Dark Mode topic (`ui/topic/darkmode/`, Topic 33) — a promotional banner card. Naive: hardcodes
+  `Color.White`/`Color.Black` directly instead of reading `MaterialTheme.colorScheme`, so the
+  banner renders identically regardless of which theme is active — correct-looking in light mode,
+  but an unchanged bright white box once dark mode is on. Better: reads
+  `MaterialTheme.colorScheme.primaryContainer`/`onPrimaryContainer`, so it automatically follows
+  whichever palette is active, the same mechanism every other screen in the app already relies on.
+  This is a deliberate, documented exception to this project's own mandatory dark-theme preview —
+  the mismatch is the point of the demonstration. Confirmed by an instrumented test that renders
+  a light-forced and a dark-forced copy of each version side by side (each wrapped in its own
+  `lightColorScheme()`/`darkColorScheme()` `MaterialTheme`) and samples each card's centre pixel
+  with `captureToImage()`: the Naive card's luminance is identical in both, the Better card's
+  differs. This is the project's first topic to assert a rendered colour rather than a semantics
+  property, since colour has no representation in the semantics tree at all.
+
+- Colour Contrast and Colour Independence topic (`ui/topic/colourcontrast/`, Topic 32) — a
+  three-row recent-orders list (Delivered / Pending / Cancelled), each row a coloured dot next to
+  an order id. Naive: the dot's colour is the *only* signal of status — no text anywhere says
+  "Delivered", "Pending", or "Cancelled" — and the colours themselves (calculated with the WCAG
+  relative-luminance formula against a fixed `#F5F5F5` card background) measure roughly 1.0–2.0:1,
+  well under the 3:1 WCAG 1.4.11 minimum for non-text UI components. Better: each row pairs its
+  colour with a Material icon (`CheckCircle` / `Info` / `Close`) and a visible text label, and
+  uses more saturated colours that measure at least 4.5:1 against the same background. Adds
+  `androidx.compose.material:material-icons-core` as a new dependency (this project's first icon
+  usage) to supply those icons. Confirmed by an instrumented test reading each row's own merged
+  semantics text back: the Naive row's text contains the order id but never the status word, the
+  Better row's contains both. Contrast-ratio compliance itself is explicitly documented as a
+  Level 2 (Accessibility Test Framework) concern per `TESTING.md`, not something a Level 1
+  semantics-tree instrumented test can verify — the test here only confirms the non-colour cue is
+  present, not the actual contrast ratio.
+
+- Font Scale topic (`ui/topic/fontscale/`, Topic 31) — a delivery-notice card. Naive: the card is
+  wrapped in `Modifier.heightIn(max = 64.dp)` with `clipToBounds()`, and its text hardcodes
+  `fontSize = 14.sp` and `fontWeight = FontWeight.Normal` instead of using
+  `MaterialTheme.typography`. The height cap is in dp and does not scale with the system font
+  size setting, so at a large enough scale the sp-sized text needs more room than the cap allows
+  and `clipToBounds()` makes the overflow actually disappear; hardcoding `FontWeight.Normal` also
+  leaves nothing for the system's Bold Text setting (`Configuration.fontWeightAdjustment`,
+  requirements §3.6.1) to adjust. Better: no height cap and no hardcoded weight, so the card grows
+  with the text and the Bold Text setting is free to apply. This is a deliberate, documented
+  exception to this project's own "no screen may clip at 200%" rule — the clipping is the point of
+  the demonstration. Confirmed by an instrumented test that renders both versions side by side at
+  3x font scale (via a `LocalDensity` override) and reads each card's measured height back from
+  the semantics tree: the Naive card never exceeds its fixed cap while the Better card grows past
+  it with the identical string at the identical width.
+
+- Keyboard-Only Operation topic (`ui/topic/keyboardonlyoperation/`, Topic 30) — a three-action
+  article toolbar (Share, Bookmark, More). Naive: Share and More use `Modifier.clickable`;
+  Bookmark is built with a bare `Modifier.pointerInput(Unit) { detectTapGestures { ... } }`
+  instead — the same "draw your own gesture handling" failure mode already established in
+  Switch: Platform vs. Custom, here costing keyboard/switch-access reachability specifically
+  rather than a missing role. Confirmed by an instrumented test that Bookmark carries neither
+  `SemanticsActions.OnClick` nor `SemanticsActions.RequestFocus` at all — structurally
+  unreachable by keyboard Tab order, switch-access scanning, and TalkBack's own swipe traversal
+  simultaneously, since `pointerInput` never touches the semantics tree on its own. Better uses
+  `Modifier.clickable` for all three.
+
+- Keyboard Focus Indicator topic (`ui/topic/keyboardfocusindicator/`, Topic 29) — opens
+  requirements §3.6 (Visual and Motor). A row of three action chips. Naive: bare
+  `Modifier.clickable`, focusable but drawing no visible indicator when focus moves to it via an
+  external keyboard. Better: reuses the exact pattern already shipped in `NaiveToggle.kt` —
+  `Modifier.onFocusChanged` observing `clickable`'s own internal focus target, a border drawn
+  conditionally while focused, ≥3:1 contrast in both themes. Developer note states plainly what
+  an instrumented test can't confirm here: whether a ring is actually drawn is a pixel-level,
+  sighted fact outside the semantics tree — the test only confirms both versions' chips are
+  genuinely focusable, which is honestly true of both; the real difference needs eyes on a real
+  external keyboard. A real threading bug surfaced while writing that test — invoking the
+  `RequestFocus` semantics action directly from the test thread throws
+  `CalledFromWrongThreadException`; fixed by wrapping the call in `composeTestRule.runOnIdle {}`.
+
+- IME Actions topic (`ui/topic/imeactions/`, Topic 28) — closes requirements §3.5 (Forms and
+  Input). A two-field contact form. Naive: default `KeyboardOptions` on both fields, the
+  keyboard's own action button left generic. Better: `ImeAction.Next`/`KeyboardActions.onNext`
+  advances focus, `ImeAction.Done`/`onDone` hides the keyboard and marks the form ready. A first
+  pass wrongly concluded `KeyboardOptions.imeAction` has no semantics wiring at all, based on
+  grepping the wrong file (`BasicTextField.kt`); an on-device test failure
+  (`performImeAction()` refuses to run on a `Default` action) surfaced the real wiring in
+  `CoreTextFieldSemanticsModifier.kt`, corrected before shipping. Both the `ImeAction` semantics
+  value and the actual `performImeAction()` behaviour are confirmed by instrumented test.
+
+- Autofill Hints topic (`ui/topic/autofillhints/`, Topic 27) — a sign-up form (username, new
+  password), enriching requirements §3.5.2 into a built topic. Naive: no `ContentType` declared
+  on either field, so a password manager cannot detect or fill them, forcing manual entry — a
+  disproportionate cost for a TalkBack user compared to a sighted one. Better:
+  `Modifier.semantics { contentType = ContentType.Username }` / `ContentType.NewPassword`,
+  confirmed present in the resolved `ui-android` sources, confirmed by an instrumented test
+  reading each field's `SemanticsProperties.ContentType` back. Developer note carries the
+  correction already logged in the topic backlog: this is opt-in work on any field type, not
+  something a plain `TextField` gets for free either.
+
+- Validation and Error Focus topic (`ui/topic/validationanderrorfocus/`, Topic 26) — a two-field
+  sign-in form. Both versions mark invalid fields using the Error Semantics topic's established
+  `error()` pattern unchanged; the only difference is that Better moves focus to the first invalid
+  field on submit via `FocusRequester.requestFocus()`. Verified before assuming the Focus After
+  Navigation topic's two-step fix would be needed again: `BasicTextField`'s focus target uses
+  `Modifier.focusable()`'s default `Focusability.Always`, not the `Focusability.SystemDefined`
+  that gated `Button`'s `requestFocus()` on touch/keyboard input mode, and there's no dialog or
+  window transition in this flow either — confirmed by reading `Focusable.kt`/`BasicTextField.kt`
+  directly, and empirically by instrumented test, that a direct call is enough here.
+
+- Text Field Labelling topic (`ui/topic/textfieldlabelling/`, Topic 24) — opens requirements §3.5
+  (Forms and Input). A "Name" field, pre-filled with "Alex" in both versions so the failure state
+  doesn't require simulated typing. Naive: `placeholder`, used as a label. Better: `label`.
+  Verified via `TextFieldImpl.kt` before writing either developer note, not assumed: the
+  placeholder composable is only created `if (placeholder != null && transformedText.isEmpty() &&
+  showPlaceholder)`, so it leaves the composition entirely — not merely fades visually — the
+  moment any text is entered, while `label`'s composable is created unconditionally whenever
+  `label != null` and only animates size/position. Confirmed by an instrumented test reading each
+  field's merged semantics text back with "Alex" already present: Better's still contains "Name",
+  Naive's does not.
+
+- Error Semantics topic (`ui/topic/errorsemantics/`, Topic 23) — a static, already-invalid email
+  field. Building this corrected the topic's own premise: `OutlinedTextField(isError = true)` is
+  not semantically silent — reading `TextFieldImpl.kt` shows it applies its own
+  `semantics { error(...) }` internally via `defaultErrorSemantics`, with a generic,
+  locale-dependent default message ("Invalid input", confirmed on-device via a German-locale
+  reading of "Ungültige Eingabe"). The real Naive/Better contrast is therefore generic-vs-specific,
+  not absent-vs-present: Naive relies on that automatic generic message; Better overrides it with
+  the actual reason (`Modifier.semantics { error("Enter a valid email address") }`), confirmed by
+  an instrumented test distinguishing the two rather than checking for mere presence. Added a new
+  `CLAUDE.md` "Established By Trial" section for this finding, relevant to the still-unbuilt Text
+  Field Labelling and Validation and Error Focus topics.
+
+- Selectable and Copyable Text topic (`ui/topic/selectablecopyabletext/`, Topic 22) — no naive
+  counterpart, and corrects a doc inconsistency: the catalogue row said "Weak — §4.5" while §4.5's
+  own list already treated this as fully disabled, now both agree ("No — §4.5"). Demo: a
+  `SelectionContainer`-wrapped paragraph (real text selection/copy) plus an order-reference `Card`
+  that isn't real selectable text but still needs a copy affordance via
+  `Modifier.semantics { copyText(label) { ... } }`, confirmed by an instrumented test invoking the
+  action directly and checking the resulting status update. Also migrated off the deprecated
+  `ClipboardManager`/`LocalClipboardManager` to the suspend-based `Clipboard`/`LocalClipboard` —
+  a Better file needing a suppression would have meant something was wrong, so this got fixed
+  instead of suppressed, per `CLAUDE.md`'s own rule.
+
+- Verbatim Strings topic (`ui/topic/verbatimstrings/`, Topic 21). An order-confirmation reference
+  code ("Reference: AB1234"). Naive: a plain string, no TTS annotation of any kind. Better: builds
+  an `AnnotatedString` and marks just the code segment with
+  `withAnnotation(VerbatimTtsAnnotation(code)) { append(code) }`, confirmed present in this
+  Compose version by reading `ui-text`'s `TtsAnnotation.kt`/`AnnotatedString.kt` directly, and read
+  back in the instrumented test via `AnnotatedString.getTtsAnnotations()`. The developer note
+  states the platform gap honestly rather than implying it's closed: the View system's `TtsSpan`
+  additionally has `TYPE_TELEPHONE`/`TYPE_DIGITS`/`TYPE_MONEY`/`TYPE_ORDINAL`, each a different
+  reading strategy; Compose exposes only one "read this literally" marker, so phone numbers in
+  particular still have no clean Compose answer.
+
+- announceForAccessibility topic (`ui/topic/announceforaccessibility/`, Topic 20) — no naive
+  counterpart (§4.5), same single-implementation pattern as Custom Actions. Contrasts
+  `View.announceForAccessibility` (reached via `LocalView.current`, no `AndroidView` needed)
+  against a live region on the same kind of status update. Confirmed the method is not merely
+  discouraged by convention but `@Deprecated` in the Android SDK itself (the compiler's own
+  warning at the call site, suppressed deliberately since using it is the point). Instrumented
+  test confirms the structural asymmetry the topic is about: the live-region side has a real
+  `LiveRegion` semantics property to assert on, the announce side has none at all, since it
+  dispatches a raw `AccessibilityEvent` rather than setting anything on the semantics tree.
+
+- Grids That Are Not Tables topic (`ui/topic/gridsthatarenottables/`, Topic 7) — closes
+  requirements §3.2 (Collections) and resolves open question #2. A 12-tile photo grid via
+  `LazyVerticalGrid`. Building this corrected a real assumption in requirements §3.2.1: the grid's
+  own default `CollectionInfo` turned out to be `(rowCount = -1, columnCount = -1)` — both
+  dimensions unknown, not the confident 2D report the doc expected — confirmed by reading
+  `LazySemantics.kt` and by instrumented test. Better overrides it to report as one-dimensional
+  per §3.2.1's normative rule (`CollectionInfo(rowCount = 12, columnCount = 1)` plus per-tile
+  `CollectionItemInfo`), confirmed by instrumented test to cleanly win over the grid's own
+  internal default — the same mechanism already established for `LazyColumn` in One-Dimensional
+  Collections. Naive relies on the unmodified, uninformative-on-both-axes default.
+
+- Modal Surfaces topic (`ui/topic/modalsurfaces/`, Topic 35) — resolves open question #3. A
+  "More options" `ModalBottomSheet` triggered from a button, deliberately not another
+  `AlertDialog` picker since Focus After Navigation already covers that shape. Both versions use
+  `ModalBottomSheetProperties()` at its defaults and never disable them — confirmed by reading
+  `ModalBottomSheet.android.kt` that `shouldDismissOnBackPress` defaults to `true` and the sheet's
+  scrim wires `onDismissRequest` unconditionally, not even configurable — the explicit §4.6
+  exception this topic is built around. Better requests focus into the sheet's first action on
+  open and returns it to the trigger button on close (the latter reusing Focus After Navigation's
+  two-step fix verbatim), and gives the sheet content a `paneTitle` announcing its appearance.
+  Building the open-on-appear focus request surfaced a real race, caught by instrumented test
+  failure rather than assumed away: requesting focus from the outer composable, keyed on the
+  sheet's visibility, can run before the sheet's own content has composed and crash with
+  "FocusRequester is not initialized" — fixed by moving that `LaunchedEffect` inside the sheet's
+  own content scope, where it is guaranteed to run only after that content commits.
+
+- Custom Actions topic (`ui/topic/customactions/`, Topic 15) — the first topic in the catalogue
+  to actually exercise requirements §4.5 (no naive counterpart). A swipeable inbox message row
+  (`SwipeToDismissBox`) with Archive and Delete reachable only by swipe, no persistent button for
+  either. `Modifier.semantics { customActions = listOf(CustomAccessibilityAction(...)) }` gives a
+  keyboard or TalkBack user a local-context-menu equivalent for both actions, confirmed by an
+  instrumented test reading `SemanticsActions.CustomActions` back with the exact expected labels.
+  The app bar's toggle-disabling infrastructure (`AppScaffold.kt`/`NaiveToggle.kt`) needed no
+  changes at all — confirmed both by reading the code and by inspecting the running app's
+  accessibility tree directly, where the toggle correctly reports `enabled="false"` on this topic.
+
+### Changed
+
+- Added `androidx.compose.material:material-icons-core` as a dependency (`gradle/libs.versions.toml`,
+  `app/build.gradle.kts`) for the Colour Contrast and Colour Independence topic's status icons —
+  this project's first use of Material icons.
+- `docs/ActuA11y_Requirements.md`: added a new `§3.9 Findings from real-world use` section
+  (Topic 46, "Concatenated content descriptions" — a `contentDescription` joining several pieces
+  of information with no pauses, and the `\n`-segmentation fix, cross-referenced against Topic
+  21's verbatim-digit problem rather than merged into it) — sourced from topic-backlog item 1,
+  kept in its own trailing section since it comes from lived bugs rather than the EN 301 549
+  update §3.8 is scoped to. Enriched Topic 27 (Autofill hints, §3.5.2) with topic-backlog item 3:
+  the accessibility-first framing for why autofill matters disproportionately for TalkBack users,
+  and the correction that `ContentType` declarations are opt-in work on any field, not free even
+  on a plain `TextField`. Both topics are catalogued only — not yet built, matching the precedent
+  set by the EN 301 549 batch, where cataloguing and building were deliberately separate sessions.
+- `CLAUDE.md`'s "Compose Collection Semantics" section updated with the `LazyVerticalGrid` default
+  finding above, and `§10`'s open questions #1 and #2 marked resolved (see `docs/ActuA11y_Requirements.md`
+  for both).
+- `README.md`'s Coverage section updated for the expanded catalogue: topic count corrected from
+  "forty-five" to "forty-six" (the real total, including Topic 46 from `§3.9`), the EN 301 549
+  count corrected from nine to eight (Topic 46 comes from `§3.9`, not the `§3.8` EN 301 549 batch),
+  and the "most topic screens are not implemented yet" banner updated to reflect that thirty-six
+  of forty-six now are.
+- `CLAUDE.md`'s Project Overview and "AGP Behaviour" section corrected from a stale `AGP 9.3.1` to
+  the actual `9.3.2` already in use since the `b5b3d81` bump.
+
+### Fixed
+
+- `app/src/test/java/de/frpeters/actua11y/ExampleUnitTest.kt` was missing the Apache 2.0 header —
+  overlooked by the 2026-07-31 project-wide retrofit because it lives in `src/test`, a source set
+  that retrofit's search didn't cover.
+
 ## [0.4.0] - 2026-09-01
 
 ### Added
@@ -220,7 +459,8 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...dev
+[0.5.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.1.0...v0.2.0

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package de.frpeters.actua11y
+package de.frpeters.actua11y.ui.topic.fontscale
 
-import org.junit.Assert.*
-import org.junit.Test
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+@Composable
+fun FontScaleTopic(showNaive: Boolean, modifier: Modifier = Modifier) {
+    if (showNaive) {
+        FontScaleNaive(modifier)
+    } else {
+        FontScaleBetter(modifier)
     }
 }
+
+// WHY: shared so both files use exactly the same cap — Naive relies on it to demonstrate
+// clipping, the test relies on it to distinguish "capped" from "grows with content".
+internal val FontScaleCardMaxHeight = 64.dp
