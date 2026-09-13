@@ -9,6 +9,8 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-13
+
 ### Added
 
 - Reduced Motion topic (`ui/topic/reducedmotion/`, Topic 34) — a "Show shipping details"
@@ -232,6 +234,13 @@ into a tagged release.
 - `CLAUDE.md`'s "Compose Collection Semantics" section updated with the `LazyVerticalGrid` default
   finding above, and `§10`'s open questions #1 and #2 marked resolved (see `docs/ActuA11y_Requirements.md`
   for both).
+- `README.md`'s Coverage section updated for the expanded catalogue: topic count corrected from
+  "forty-five" to "forty-six" (the real total, including Topic 46 from `§3.9`), the EN 301 549
+  count corrected from nine to eight (Topic 46 comes from `§3.9`, not the `§3.8` EN 301 549 batch),
+  and the "most topic screens are not implemented yet" banner updated to reflect that thirty-six
+  of forty-six now are.
+- `CLAUDE.md`'s Project Overview and "AGP Behaviour" section corrected from a stale `AGP 9.3.1` to
+  the actual `9.3.2` already in use since the `b5b3d81` bump.
 
 ### Fixed
 
@@ -450,7 +459,8 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...dev
+[0.5.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.1.0...v0.2.0
