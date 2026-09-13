@@ -22,14 +22,17 @@ import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
+import de.frpeters.actua11y.ui.topic.customactions.CustomActionsTopic
 import de.frpeters.actua11y.ui.topic.disabledelements.DisabledElementsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
+import de.frpeters.actua11y.ui.topic.gridsthatarenottables.GridsThatAreNotTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.liveregions.LiveRegionsTopic
 import de.frpeters.actua11y.ui.topic.minimumtouchtarget.MinimumTouchTargetTopic
+import de.frpeters.actua11y.ui.topic.modalsurfaces.ModalSurfacesTopic
 import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCollectionsTopic
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
@@ -130,6 +133,15 @@ object TopicRegistry {
             },
         ),
         Topic(
+            id = "grids_that_are_not_tables",
+            category = TopicCategory.COLLECTIONS,
+            titleRes = R.string.grids_that_are_not_tables_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                GridsThatAreNotTablesTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
             id = "genuine_tables",
             category = TopicCategory.COLLECTIONS,
             titleRes = R.string.genuine_tables_title,
@@ -211,6 +223,18 @@ object TopicRegistry {
             },
         ),
         Topic(
+            id = "custom_actions",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.custom_actions_title,
+            // WHY: first topic to actually exercise requirements §4.5 — no functionally
+            // equivalent naive version exists. AppScaffold/NaiveToggle already handle
+            // supportsNaive = false correctly (disabled, semantics { disabled() } applied).
+            supportsNaive = false,
+            content = { showNaive, modifier ->
+                CustomActionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
             id = "content_descriptions",
             category = TopicCategory.TEXT,
             titleRes = R.string.content_descriptions_title,
@@ -235,6 +259,15 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 LiveRegionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "modal_surfaces",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.modal_surfaces_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ModalSurfacesTopic(showNaive, modifier)
             },
         ),
     )

@@ -9,6 +9,66 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Grids That Are Not Tables topic (`ui/topic/gridsthatarenottables/`, Topic 7) — closes
+  requirements §3.2 (Collections) and resolves open question #2. A 12-tile photo grid via
+  `LazyVerticalGrid`. Building this corrected a real assumption in requirements §3.2.1: the grid's
+  own default `CollectionInfo` turned out to be `(rowCount = -1, columnCount = -1)` — both
+  dimensions unknown, not the confident 2D report the doc expected — confirmed by reading
+  `LazySemantics.kt` and by instrumented test. Better overrides it to report as one-dimensional
+  per §3.2.1's normative rule (`CollectionInfo(rowCount = 12, columnCount = 1)` plus per-tile
+  `CollectionItemInfo`), confirmed by instrumented test to cleanly win over the grid's own
+  internal default — the same mechanism already established for `LazyColumn` in One-Dimensional
+  Collections. Naive relies on the unmodified, uninformative-on-both-axes default.
+
+- Modal Surfaces topic (`ui/topic/modalsurfaces/`, Topic 35) — resolves open question #3. A
+  "More options" `ModalBottomSheet` triggered from a button, deliberately not another
+  `AlertDialog` picker since Focus After Navigation already covers that shape. Both versions use
+  `ModalBottomSheetProperties()` at its defaults and never disable them — confirmed by reading
+  `ModalBottomSheet.android.kt` that `shouldDismissOnBackPress` defaults to `true` and the sheet's
+  scrim wires `onDismissRequest` unconditionally, not even configurable — the explicit §4.6
+  exception this topic is built around. Better requests focus into the sheet's first action on
+  open and returns it to the trigger button on close (the latter reusing Focus After Navigation's
+  two-step fix verbatim), and gives the sheet content a `paneTitle` announcing its appearance.
+  Building the open-on-appear focus request surfaced a real race, caught by instrumented test
+  failure rather than assumed away: requesting focus from the outer composable, keyed on the
+  sheet's visibility, can run before the sheet's own content has composed and crash with
+  "FocusRequester is not initialized" — fixed by moving that `LaunchedEffect` inside the sheet's
+  own content scope, where it is guaranteed to run only after that content commits.
+
+- Custom Actions topic (`ui/topic/customactions/`, Topic 15) — the first topic in the catalogue
+  to actually exercise requirements §4.5 (no naive counterpart). A swipeable inbox message row
+  (`SwipeToDismissBox`) with Archive and Delete reachable only by swipe, no persistent button for
+  either. `Modifier.semantics { customActions = listOf(CustomAccessibilityAction(...)) }` gives a
+  keyboard or TalkBack user a local-context-menu equivalent for both actions, confirmed by an
+  instrumented test reading `SemanticsActions.CustomActions` back with the exact expected labels.
+  The app bar's toggle-disabling infrastructure (`AppScaffold.kt`/`NaiveToggle.kt`) needed no
+  changes at all — confirmed both by reading the code and by inspecting the running app's
+  accessibility tree directly, where the toggle correctly reports `enabled="false"` on this topic.
+
+### Changed
+
+- `docs/ActuA11y_Requirements.md`: added a new `§3.9 Findings from real-world use` section
+  (Topic 46, "Concatenated content descriptions" — a `contentDescription` joining several pieces
+  of information with no pauses, and the `\n`-segmentation fix, cross-referenced against Topic
+  21's verbatim-digit problem rather than merged into it) — sourced from topic-backlog item 1,
+  kept in its own trailing section since it comes from lived bugs rather than the EN 301 549
+  update §3.8 is scoped to. Enriched Topic 27 (Autofill hints, §3.5.2) with topic-backlog item 3:
+  the accessibility-first framing for why autofill matters disproportionately for TalkBack users,
+  and the correction that `ContentType` declarations are opt-in work on any field, not free even
+  on a plain `TextField`. Both topics are catalogued only — not yet built, matching the precedent
+  set by the EN 301 549 batch, where cataloguing and building were deliberately separate sessions.
+- `CLAUDE.md`'s "Compose Collection Semantics" section updated with the `LazyVerticalGrid` default
+  finding above, and `§10`'s open questions #1 and #2 marked resolved (see `docs/ActuA11y_Requirements.md`
+  for both).
+
+### Fixed
+
+- `app/src/test/java/de/frpeters/actua11y/ExampleUnitTest.kt` was missing the Apache 2.0 header —
+  overlooked by the 2026-07-31 project-wide retrofit because it lives in `src/test`, a source set
+  that retrofit's search didn't cover.
+
 ## [0.4.0] - 2026-09-01
 
 ### Added

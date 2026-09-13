@@ -87,10 +87,10 @@ Discovered building the Focus After Navigation topic (2026-08-19), confirmed on 
 ## Compose Collection Semantics — Established By Trial
 
 Discovered building the One-Dimensional Collections, Genuine Tables, and Lazy List Pitfalls
-topics (2026-08-21), confirmed by reading `foundation-android-1.8.1-sources.jar` and by
-instrumented test on a real device (Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any
-future topic touching `collectionInfo`/`collectionItemInfo` — in particular "Grids that are not
-tables" (§3.2.1, still blocked on its own open question) in the topic catalogue.
+topics (2026-08-21), and the Grids That Are Not Tables topic (2026-09-13), confirmed by reading
+`foundation-android-1.8.1-sources.jar` and by instrumented test on a real device (Pixel 9 Pro,
+API 37, Compose BOM 2025.05.00). Relevant to any future topic touching
+`collectionInfo`/`collectionItemInfo`.
 
 - **`LazyColumn`/`LazyRow` automatically attach `CollectionInfo` semantics to themselves with no
   app code at all** (`LazyLayoutSemanticState.kt`) — but the value is **unconditionally**
@@ -107,12 +107,19 @@ tables" (§3.2.1, still blocked on its own open question) in the topic catalogue
   list, always.
 - **An explicit `Modifier.semantics { collectionInfo = … }` layered onto a `LazyColumn` does
   cleanly override its internal default**, confirmed by instrumented test reading the resulting
-  semantics node back, not just assumed from the API. This resolves the override question for the
-  plain-list case; the equivalent question for `LazyVerticalGrid` (§3.2.1 / Topic 7) is different
-  in shape (grid semantics that actively assert 2D structure, not just an "unknown" placeholder)
-  and is still an open question requiring its own device verification — do not assume the list
-  finding transfers automatically just because the underlying modifier plumbing
-  (`LazyLayoutSemanticsModifierNode`) is shared.
+  semantics node back, not just assumed from the API.
+- **`LazyVerticalGrid`'s own default `CollectionInfo` is `(rowCount = -1, columnCount = -1)` —
+  both dimensions unknown, not a confident 2D report.** Requirements §3.2.1 originally assumed
+  grid semantics actively assert real 2D structure by default, stricter than a plain list's
+  "unknown" placeholder. That assumption was wrong for this Compose version: reading
+  `LazyGridSemanticState.collectionInfo()` in `LazySemantics.kt` shows it unconditionally returns
+  `CollectionInfo(-1, -1)`, with the library's own `// TODO(popam): check if this is correct`
+  comment acknowledging the gap. Confirmed by instrumented test (`GridsThatAreNotTablesTopicTest`)
+  that an explicit override cleanly wins here too, the same mechanism as the `LazyColumn` case
+  above — because both are overriding an *unknown* placeholder, not a confidently-asserted claim.
+  Do not assume this generalizes to `LazyVerticalStaggeredGrid` or other layouts without checking;
+  it generalized from list to grid here only because the underlying default turned out to have the
+  same shape in both cases.
 - **`CollectionItemInfo` in this Compose version carries only `(rowIndex, rowSpan, columnIndex,
   columnSpan)`** — no separate flag marking a cell as a header. A table's header row can only be
   represented as "row 0"; there is no framework-level signal distinguishing it from a data row.
