@@ -11,7 +11,7 @@
 
 </div>
 
-> ⚠️ **Work in progress.** This README describes the intended shape of the project. Most topic screens are not implemented yet. See [Releases](../../releases) for what actually exists today.
+> ⚠️ **Work in progress.** This README describes the intended shape of the project. Not all topic screens are implemented yet. See [Releases](../../releases) for what actually exists today.
 
 ---
 
@@ -47,7 +47,7 @@ Some topics have no honest naive counterpart — where the naive version would s
 
 ## Coverage
 
-Forty-five topics across seven areas, nine of them added as EN 301 549 V4.1.1 and WCAG 2.2 become relevant. Not all are implemented yet.
+Forty-six topics across seven areas, eight of them added as EN 301 549 V4.1.1 and WCAG 2.2 become relevant, plus one more logged from real-world use. Thirty-six are implemented so far.
 
 <details>
 <summary><strong>Structure and traversal</strong> — how a screen reader moves through a screen</summary>

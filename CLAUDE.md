@@ -19,7 +19,7 @@ Every topic exists in two implementations — **Naive** and **Better** — selec
 a toggle in the app bar. Both are compiled into every build variant.
 
 - Package: `de.frpeters.actua11y`
-- AGP 9.3.1 | compileSdk 36 | minSdk 28
+- AGP 9.3.2 | compileSdk 36 | minSdk 28
 - Kotlin, Jetpack Compose only
 - License: Apache 2.0 — every source file carries the header
 
@@ -42,7 +42,7 @@ a toggle in the app bar. Both are compiled into every build variant.
 ## AGP Behaviour — Established By Trial
 
 These were discovered by hitting them. Do not "correct" them back. Confirmed still true as of
-AGP 9.3.1 / Kotlin 2.2.10 / Gradle 9.5.0.
+AGP 9.3.2 / Kotlin 2.2.10 / Gradle 9.5.0.
 
 - **Do NOT apply `org.jetbrains.kotlin.android`** in `app/build.gradle.kts`. AGP registers the
   `kotlin` extension internally; applying the plugin explicitly causes
@@ -81,6 +81,20 @@ Discovered building the Focus After Navigation topic (2026-08-19), confirmed on 
 - Both fixes are required together for a "return focus to the trigger after a dialog closes"
   pattern; either alone reproducibly fails. See `ui/topic/focusafternavigation/FocusAfterNavigationBetter.kt`
   for the working reference implementation and its in-code rationale.
+- **This is not universal — `BasicTextField`'s focus target does not have the same problem.**
+  Discovered building Validation and Error Focus (2026-09-13), confirmed by reading
+  `Focusable.kt`/`BasicTextField.kt`: `BasicTextField` applies plain `Modifier.focusable()`, whose
+  underlying node defaults to `Focusability.Always`, never `Focusability.SystemDefined`. A direct
+  `FocusRequester.requestFocus()` call — no `requestInputMode(Keyboard)`, no waiting on window
+  focus — successfully moves focus into a text field, confirmed by instrumented test. The two-step
+  fix above is specifically a `clickable`-family (`Button`, and anything using `Modifier.clickable`)
+  problem, combined with a dialog/new-window transition when relevant — do not apply either half
+  of it to a text field target without checking whether the same cause is actually present.
+- Also applies to Modal Surfaces (2026-09-13): requesting focus into a newly-opened
+  `ModalBottomSheet`'s content races the sheet's own (sub)composition if done from the outer
+  composable keyed on visibility — `LaunchedEffect` must live inside the sheet's own content
+  lambda to guarantee the target node already exists when it runs. See
+  `ui/topic/modalsurfaces/ModalSurfacesBetter.kt`.
 
 ---
 
@@ -154,6 +168,65 @@ up concatenated in in a single merged accessibility node.
   node that is already merged. Do not expect adding `traversalIndex` inside an already-merged
   subtree to reorder its announced text — it silently does nothing there, for a different reason
   than the "no enclosing traversal group" case the Traversal Index topic covers.
+
+---
+
+## TextField Semantics — Established By Trial
+
+Discovered building the Error Semantics and IME Actions topics (2026-09-13), confirmed by reading
+`material3-android-1.3.2-sources.jar`/`foundation-android-1.8.1-sources.jar` and by instrumented
+test on a real device (Pixel 9 Pro, API 37). Relevant to any future topic using
+`TextField`/`OutlinedTextField`/`BasicTextField`.
+
+- **`TextField`/`OutlinedTextField(isError = true)` is not semantically silent by default.**
+  `TextFieldImpl.kt`'s `defaultErrorSemantics(isError, defaultErrorMessage)` is applied
+  internally by both composables: `if (isError) semantics { error(defaultErrorMessage) } else
+  this`. A real `SemanticsProperties.Error` is attached automatically whenever `isError` is
+  `true`, with no app code required — confirmed on-device, where the automatic value was
+  Material3's own generic, locale-dependent string (English "Invalid input", read back as German
+  "Ungültige Eingabe" on a German-locale device). An explicit `Modifier.semantics { error(msg) }`
+  applied by the app overrides this generic default with a specific message; do not assume
+  `isError = true` alone means a field is semantically unmarked — the naive failure mode here is a
+  present-but-useless generic message, not silence.
+- **`KeyboardOptions.imeAction` *is* wired into `SemanticsProperties.ImeAction` — check the right
+  file before concluding otherwise.** A first pass grepped `BasicTextField.kt` for `ImeAction`,
+  found nothing, and wrongly concluded the two were unconnected. The actual wiring is in
+  `androidx.compose.foundation.text.input.internal.CoreTextFieldSemanticsModifier.kt`:
+  `onImeAction(imeOptions.imeAction) { state.onImeActionPerformed(...); true }`. Confirmed
+  on-device: `performImeAction()` (the Compose UI test API that simulates pressing the keyboard's
+  own action button) refuses to run at all when a field's `ImeAction` is `Default`
+  ("Failed to assert: `NOT (ImeAction = 'Default')`") — itself a reliable way to distinguish a
+  field with a real configured action from one left at the generic default, without needing to
+  invoke the action to find out. Lesson beyond the API fact itself: a `grep` finding nothing in
+  the file you expected is evidence the wiring is elsewhere, not evidence it doesn't exist —
+  confirm the absence some other way (an instrumented test, in this case) before writing a claim
+  into a developer note.
+
+---
+
+## Testing Rendered Colour — Established By Trial
+
+Discovered building the Dark Mode topic (2026-09-13), confirmed by instrumented test on a real
+device (Pixel 9 Pro, API 37, Compose BOM 2025.05.00). Relevant to any future topic where the only
+difference between Naive and Better is a colour value with no semantics-tree representation at
+all (dark-mode adaptation, theming, anything read from `MaterialTheme.colorScheme` rather than
+exposed as `Role`/`ContentDescription`/etc.).
+
+- **Colour is not part of the semantics tree.** Every other topic in this project asserts against
+  `SemanticsNode.config` (`Role`, `Text`, `Error`, `ImeAction`, and so on); a rendered colour has
+  no equivalent property to read there. The only way to test it at all is to render the pixels and
+  sample them: `composeTestRule.onNodeWithTag(tag).captureToImage()` (or
+  `onAllNodesWithTag(tag)[index].captureToImage()` for more than one match) returns an
+  `ImageBitmap`; `.toPixelMap()[x, y]` reads a single pixel back as a `Color`;
+  `Color.luminance()` gives a single comparable number instead of comparing raw ARGB channels.
+- **Stacking two `fillMaxSize()` composables in a plain `Column` inside a test collapses the
+  second one to zero height**, then `captureToImage()` throws
+  `IllegalArgumentException: width and height must be > 0` — not a useful assertion failure, a
+  crash. A `Column` gives each child only as much space as it asks for, in order; the first
+  `fillMaxSize()` child claims all of it, leaving nothing for the second. Give each instance a
+  bounded `Modifier.height(...)` when composing more than one full-screen topic composable
+  side by side in a single test, rather than relying on `fillMaxSize()` sizing itself sensibly in
+  a test host with no real screen bounds driving the constraint.
 
 ---
 

@@ -166,7 +166,7 @@ inside a merged node.
 | 19 | Live regions | `liveRegion`, `LiveRegionMode` | Yes | Identical text does not re-announce. `Assertive` interrupts mid-utterance and is nearly always wrong. A node leaving composition announces nothing. |
 | 20 | announceForAccessibility | `View.announceForAccessibility` | **No** — §4.5 | Discouraged by Google; announcements are dropped during screen transitions. The demonstration is live region *versus* announcement. |
 | 21 | Verbatim strings | `VerbatimTtsAnnotation` | Yes | **See §3.4.1.** |
-| 22 | Selectable and copyable text | `SelectionContainer`, `semantics { copyText { } }` | Weak — §4.5 | `SelectionContainer` interferes with clickable children. |
+| 22 | Selectable and copyable text | `SelectionContainer`, `semantics { copyText { } }` | No — §4.5 | `SelectionContainer` interferes with clickable children. |
 | 23 | Error semantics | `semantics { error(…) }` | Yes | Validation announced as an error rather than as ordinary text. Pairs with §3.5. |
 
 #### 3.4.1 Verbatim strings and the TTS gap

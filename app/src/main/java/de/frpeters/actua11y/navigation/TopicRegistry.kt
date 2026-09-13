@@ -21,13 +21,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
 import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
+import de.frpeters.actua11y.ui.topic.announceforaccessibility.AnnounceForAccessibilityTopic
+import de.frpeters.actua11y.ui.topic.autofillhints.AutofillHintsTopic
+import de.frpeters.actua11y.ui.topic.colourcontrast.ColourContrastTopic
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.customactions.CustomActionsTopic
+import de.frpeters.actua11y.ui.topic.darkmode.DarkModeTopic
 import de.frpeters.actua11y.ui.topic.disabledelements.DisabledElementsTopic
+import de.frpeters.actua11y.ui.topic.errorsemantics.ErrorSemanticsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
+import de.frpeters.actua11y.ui.topic.fontscale.FontScaleTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.gridsthatarenottables.GridsThatAreNotTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
+import de.frpeters.actua11y.ui.topic.imeactions.ImeActionsTopic
+import de.frpeters.actua11y.ui.topic.keyboardfocusindicator.KeyboardFocusIndicatorTopic
+import de.frpeters.actua11y.ui.topic.keyboardonlyoperation.KeyboardOnlyOperationTopic
 import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.liveregions.LiveRegionsTopic
@@ -37,11 +46,16 @@ import de.frpeters.actua11y.ui.topic.onedimensionalcollections.OneDimensionalCol
 import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
 import de.frpeters.actua11y.ui.topic.progressandsliders.ProgressAndSlidersTopic
+import de.frpeters.actua11y.ui.topic.reducedmotion.ReducedMotionTopic
+import de.frpeters.actua11y.ui.topic.selectablecopyabletext.SelectableCopyableTextTopic
 import de.frpeters.actua11y.ui.topic.selectableiconlists.SelectableIconListsTopic
 import de.frpeters.actua11y.ui.topic.statevscontentdescription.StateVsContentDescriptionTopic
 import de.frpeters.actua11y.ui.topic.switchplatformvscustom.SwitchPlatformVsCustomTopic
+import de.frpeters.actua11y.ui.topic.textfieldlabelling.TextFieldLabellingTopic
 import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
+import de.frpeters.actua11y.ui.topic.validationanderrorfocus.ValidationAndErrorFocusTopic
+import de.frpeters.actua11y.ui.topic.verbatimstrings.VerbatimStringsTopic
 
 // WHY: single source of truth for every topic (requirements §4.7). Navigation, the home
 // screen, category listings, app-bar titles, and the toggle's enabled state are all derived
@@ -115,12 +129,48 @@ object TopicRegistry {
             },
         ),
         Topic(
+            id = "text_field_labelling",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.text_field_labelling_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                TextFieldLabellingTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
             id = "pin_show_hide",
             category = TopicCategory.FORMS,
             titleRes = R.string.pin_show_hide_title,
             supportsNaive = true,
             content = { showNaive, modifier ->
                 PinShowHideTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "validation_and_error_focus",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.validation_and_error_focus_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ValidationAndErrorFocusTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "autofill_hints",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.autofill_hints_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                AutofillHintsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "ime_actions",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.ime_actions_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ImeActionsTopic(showNaive, modifier)
             },
         ),
         Topic(
@@ -259,6 +309,96 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 LiveRegionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "announce_for_accessibility",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.announce_for_accessibility_title,
+            supportsNaive = false,
+            content = { showNaive, modifier ->
+                AnnounceForAccessibilityTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "verbatim_strings",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.verbatim_strings_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                VerbatimStringsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "selectable_copyable_text",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.selectable_copyable_text_title,
+            supportsNaive = false,
+            content = { showNaive, modifier ->
+                SelectableCopyableTextTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "error_semantics",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.error_semantics_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ErrorSemanticsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "keyboard_focus_indicator",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.keyboard_focus_indicator_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                KeyboardFocusIndicatorTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "keyboard_only_operation",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.keyboard_only_operation_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                KeyboardOnlyOperationTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "font_scale",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.font_scale_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                FontScaleTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "colour_contrast",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.colour_contrast_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ColourContrastTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "dark_mode",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.dark_mode_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                DarkModeTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "reduced_motion",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.reduced_motion_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ReducedMotionTopic(showNaive, modifier)
             },
         ),
         Topic(
