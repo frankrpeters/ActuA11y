@@ -20,10 +20,12 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
-import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
 import de.frpeters.actua11y.ui.topic.announceforaccessibility.AnnounceForAccessibilityTopic
 import de.frpeters.actua11y.ui.topic.autofillhints.AutofillHintsTopic
 import de.frpeters.actua11y.ui.topic.colourcontrast.ColourContrastTopic
+import de.frpeters.actua11y.ui.topic.compositecontrols.CompositeControlsTopic
+import de.frpeters.actua11y.ui.topic.concatenateddescriptions.ConcatenatedDescriptionsTopic
+import de.frpeters.actua11y.ui.topic.consistentidentification.ConsistentIdentificationTopic
 import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopic
 import de.frpeters.actua11y.ui.topic.customactions.CustomActionsTopic
 import de.frpeters.actua11y.ui.topic.darkmode.DarkModeTopic
@@ -35,9 +37,9 @@ import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.gridsthatarenottables.GridsThatAreNotTablesTopic
 import de.frpeters.actua11y.ui.topic.headings.HeadingsTopic
 import de.frpeters.actua11y.ui.topic.imeactions.ImeActionsTopic
+import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.keyboardfocusindicator.KeyboardFocusIndicatorTopic
 import de.frpeters.actua11y.ui.topic.keyboardonlyoperation.KeyboardOnlyOperationTopic
-import de.frpeters.actua11y.ui.topic.inputasbutton.InputAsButtonTopic
 import de.frpeters.actua11y.ui.topic.lazylistpitfalls.LazyListPitfallsTopic
 import de.frpeters.actua11y.ui.topic.liveregions.LiveRegionsTopic
 import de.frpeters.actua11y.ui.topic.minimumtouchtarget.MinimumTouchTargetTopic
@@ -56,6 +58,8 @@ import de.frpeters.actua11y.ui.topic.traversalgroups.TraversalGroupsTopic
 import de.frpeters.actua11y.ui.topic.traversalindex.TraversalIndexTopic
 import de.frpeters.actua11y.ui.topic.validationanderrorfocus.ValidationAndErrorFocusTopic
 import de.frpeters.actua11y.ui.topic.verbatimstrings.VerbatimStringsTopic
+import de.frpeters.actua11y.ui.topic.voidconsistenthelp.VoidConsistentHelpTopic
+import de.frpeters.actua11y.ui.topic.voidparsing.VoidParsingTopic
 
 // WHY: single source of truth for every topic (requirements §4.7). Navigation, the home
 // screen, category listings, app-bar titles, and the toggle's enabled state are all derived
@@ -415,6 +419,53 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 ModalSurfacesTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "consistent_identification",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.consistent_identification_title,
+            supportsNaive = true,
+            // WHY: SC 3.2.4 predates WCAG 2.2, but EN 301 549 V3.2.1 marked this software clause
+            // void — V4.1.1 is what makes it binding for native apps.
+            enClause = "11.3.2.4",
+            wcagVersion = "2.1",
+            bindingFrom = "EN 301 549 V4.1.1",
+            content = { showNaive, modifier ->
+                ConsistentIdentificationTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "void_consistent_help",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.void_consistent_help_title,
+            // WHY: content-only note (requirements §4.5). No clause or binding date to cite —
+            // the point of the topic is that there is no binding software requirement.
+            supportsNaive = false,
+            wcagVersion = "2.2",
+            content = { showNaive, modifier ->
+                VoidConsistentHelpTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "void_parsing",
+            category = TopicCategory.STRUCTURE,
+            titleRes = R.string.void_parsing_title,
+            // WHY: content-only note (requirements §4.5). wcagVersion records the version that
+            // removed SC 4.1.1, not one that introduced it.
+            supportsNaive = false,
+            wcagVersion = "2.2",
+            content = { showNaive, modifier ->
+                VoidParsingTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "concatenated_descriptions",
+            category = TopicCategory.TEXT,
+            titleRes = R.string.concatenated_descriptions_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                ConcatenatedDescriptionsTopic(showNaive, modifier)
             },
         ),
     )

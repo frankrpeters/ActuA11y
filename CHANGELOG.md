@@ -9,6 +9,27 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Consistent Identification topic (`ui/topic/consistentidentification/`, Topic 42, Text and
+  Announcement) — the same heart-icon "save" action appears on a search result and on a product
+  details card. Naive: both buttons are labelled, but differently ("Save" / "Add to wishlist"),
+  invisible to a sighted user who sees the same icon twice. Better: both draw their
+  `contentDescription` from one shared string resource. The instrumented test compares the two
+  nodes' names to each other, since each is individually valid in both versions. Registry
+  metadata: `enClause = "11.3.2.4"`, `wcagVersion = "2.1"` (SC 3.2.4 predates 2.2),
+  `bindingFrom = "EN 301 549 V4.1.1"` (the clause was void for software in V3.2.1).
+- Concatenated Content Descriptions topic (`ui/topic/concatenateddescriptions/`, Topic 46, Text
+  and Announcement) — an order summary card made one TalkBack stop with `clearAndSetSemantics`.
+  Naive: the five description segments are joined with spaces. Better: joined with `\n`, which
+  TalkBack treats as a pause (requirements §3.9). The item count uses a plurals resource.
+  `TODO(verify)`: the audible pause on a real device.
+- Void Clause: Consistent Help (`ui/topic/voidconsistenthelp/`, Topic 44) and Void Clause:
+  Parsing (`ui/topic/voidparsing/`, Topic 45) — content-only note screens with
+  `supportsNaive = false` (§4.5), placed under Structure and Traversal. Each has three headed
+  sections (what the criterion asks, why it does not apply to a native app, what to check
+  instead); their tests assert the three headings and the registry's `supportsNaive = false`.
+
 ### Changed
 
 - `Topic` (`navigation/TopicRegistry.kt`) gains the three optional source-metadata fields
