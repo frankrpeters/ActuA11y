@@ -64,6 +64,8 @@ import de.frpeters.actua11y.ui.topic.validationanderrorfocus.ValidationAndErrorF
 import de.frpeters.actua11y.ui.topic.verbatimstrings.VerbatimStringsTopic
 import de.frpeters.actua11y.ui.topic.voidconsistenthelp.VoidConsistentHelpTopic
 import de.frpeters.actua11y.ui.topic.voidparsing.VoidParsingTopic
+import de.frpeters.actua11y.ui.topic.webviewscope.WebViewScopeTopic
+import de.frpeters.actua11y.ui.topic.wrappedview.WrappedViewTopic
 
 // WHY: single source of truth for every topic (requirements §4.7). Navigation, the home
 // screen, category listings, app-bar titles, and the toggle's enabled state are all derived
@@ -518,6 +520,24 @@ object TopicRegistry {
             bindingFrom = "EN 301 549 V4.1.1",
             content = { showNaive, modifier ->
                 FocusNotObscuredTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "wrapped_view",
+            category = TopicCategory.INTEROP,
+            titleRes = R.string.wrapped_view_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                WrappedViewTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "webview_scope",
+            category = TopicCategory.INTEROP,
+            titleRes = R.string.webview_scope_title,
+            supportsNaive = true,
+            content = { showNaive, modifier ->
+                WebViewScopeTopic(showNaive, modifier)
             },
         ),
     )

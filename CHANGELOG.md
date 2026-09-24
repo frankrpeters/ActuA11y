@@ -65,6 +65,23 @@ into a tagged release.
   shrink re-reveals the focused child) shows no explicit requester is needed — the fix is the
   viewport's geometry. The test compares the focused field's bounds with the bar's.
   Registry: `11.2.4.11` / WCAG 2.2 / binding from V4.1.1.
+- Fixing Accessibility on a Wrapped View topic (`ui/topic/wrappedview/`, Topic 36, Interop — the
+  first topic in that category, and the project's one deliberate use of Android Views). A legacy
+  custom-drawn star rating (`LegacyStarRatingView`, in the dispatcher file) is wrapped with
+  `AndroidView`, unmodified, in both versions. Naive: nothing else. Better: repairs it from outside
+  the class — `contentDescription`, `ViewCompat.setStateDescription` (re-applied on every change,
+  which also notifies accessibility services), an `AccessibilityDelegateCompat` reporting
+  `SeekBar`'s class name, `RangeInfo` and scroll forward/backward actions, plus focusability and
+  arrow-key handling. The test reads the View's own `AccessibilityNodeInfo`, since the Compose
+  semantics tree cannot see inside an `AndroidView`.
+- WebView Accessibility Scope topic (`ui/topic/webviewscope/`, Topic 37, Interop) — a bundled help
+  page (`assets/webview_scope/faq.html`, so no `INTERNET` permission) in a `WebView`, with a
+  shared switch that simulates a load failure. Naive: the error overlay is plain text with a
+  role-less clickable "Try again", and the covered page stays in the accessibility tree. Better:
+  polite live region, a `TextButton`, and `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` on the
+  WebView while covered. Traversal placement is the same in both (composition order);
+  `TODO(verify)` on device. The developer notes state the clause 9 / clause 11 boundary
+  (§3.7.1).
 
 ### Changed
 

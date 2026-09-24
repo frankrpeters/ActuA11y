@@ -677,4 +677,51 @@ The form\'s scroll viewport still runs underneath the bar. When focus moves, Com
 Nothing makes room for the on-screen keyboard either. With edge-to-edge drawing, the window is not resized when the keyboard opens, so a field focused near the bottom of the screen can end up behind the keyboard itself.
 
 No lint rule or TalkBack check catches either problem. Test with a physical keyboard.</string>
+
+    <!-- Fixing Accessibility on a Wrapped View topic (requirements §3.7, Topic 36) -->
+    <string name="wrapped_view_title">Fixing Accessibility on a Wrapped View</string>
+    <string name="wrapped_view_pane_title">Fixing accessibility on a wrapped view</string>
+    <string name="wrapped_view_intro">Many apps are a mix of old and new code. A custom control written years ago can be placed inside a new screen and look perfectly at home, while telling a screen reader nothing about what it is, what it is set to, or how to change it.</string>
+    <string name="wrapped_view_what_to_try">Turn on TalkBack and swipe onto the stars below. Listen for what is announced, then try to change the rating without tapping a star directly. With a keyboard, try the arrow keys.</string>
+    <string name="wrapped_view_section_label">Rate Your Delivery</string>
+    <string name="wrapped_view_rating_label">Delivery rating</string>
+    <string name="wrapped_view_developer_note_better">The star rating is a legacy custom View (LegacyStarRatingView, in WrappedViewTopic.kt), placed in Compose with AndroidView. It is the same unmodified class in both versions. Everything that makes it accessible here is applied to the View instance from outside, through public APIs, which is how this kind of fix usually has to be done when the class belongs to a library or another team.
+
+contentDescription gives it a name. ViewCompat.setStateDescription gives the current value separately from the name, and is called again whenever the rating changes, which also notifies accessibility services so the new value is announced. ViewCompat.setAccessibilityDelegate installs an AccessibilityDelegateCompat that reports the class name of SeekBar (so accessibility services treat it as an adjustable control), adds RangeInfo (0 to 5), and offers ACTION_SCROLL_FORWARD and ACTION_SCROLL_BACKWARD, handled in performAccessibilityAction. isFocusable and a key listener make it reachable and adjustable with a keyboard.
+
+This is the one topic that uses Android Views on purpose (requirements §3.7). In a hybrid app, the accessibility of a wrapped View is still decided by the View system: Compose\'s semantics modifiers apply to the AndroidView\'s layout node, not to the View\'s own AccessibilityNodeInfo. That is why the fix uses View APIs, not Compose ones.
+
+The instrumented test for this topic builds the View\'s AccessibilityNodeInfo the same way an accessibility service receives it, and performs the scroll actions on it.</string>
+    <string name="wrapped_view_developer_note_naive">The legacy View is placed in Compose with AndroidView exactly as it is. It draws the stars and responds to taps, so a sighted touch user notices nothing wrong.
+
+To an accessibility service it is an anonymous android.view.View: no content description, no state description, no range information, and no accessibility actions. Because it is not clickable or focusable either, TalkBack may skip it entirely. The only way to change the rating is to tap a precise spot on the screen, which TalkBack\'s touch exploration intercepts and which a keyboard or switch user cannot do at all.
+
+Nothing in Compose can see this. The View\'s accessibility is handled by the View system, so Compose\'s lint checks and semantics tree have nothing to report. The instrumented test for this topic reads the View\'s own AccessibilityNodeInfo back and finds it empty.</string>
+    <plurals name="wrapped_view_rating_state">
+        <item quantity="one">%1$d of %2$d star</item>
+        <item quantity="other">%1$d of %2$d stars</item>
+    </plurals>
+
+    <!-- WebView Accessibility Scope topic (requirements §3.7, §3.7.1, Topic 37) -->
+    <string name="webview_scope_title">WebView Accessibility Scope</string>
+    <string name="webview_scope_pane_title">WebView accessibility scope</string>
+    <string name="webview_scope_intro">Some screens show a web page inside the app, such as a help page from the company website. The web page\'s own accessibility is up to whoever wrote it. What the app is responsible for is everything around it: where the page sits among the app\'s own controls, and what happens when it fails to load.</string>
+    <string name="webview_scope_what_to_try">Turn on TalkBack, then turn on \"Simulate a loading failure\". Listen for whether the error is announced, then swipe through the help area. Check whether you can still reach the old page behind the error, and how the retry control is described.</string>
+    <string name="webview_scope_section_label">Delivery Help</string>
+    <string name="webview_scope_simulate_failure">Simulate a loading failure</string>
+    <string name="webview_scope_error_message">The help page could not be loaded. Check your connection and try again.</string>
+    <string name="webview_scope_retry">Try again</string>
+    <string name="webview_scope_contact_support">Contact support</string>
+    <string name="webview_scope_developer_note_better">A WebView embedded in an app is assessed as part of that app, under EN 301 549 clause 11 (software), not clause 9 (web). The two do not apply in parallel (requirements §3.7.1). The accessibility of the HTML itself belongs to whoever writes the page, and is out of scope for this app to fix. Modern WebView already exposes the page\'s own accessibility tree to TalkBack automatically, and native code cannot improve on that. What is the app\'s responsibility is the native layer around it, and that is all this version changes.
+
+While the error overlay is shown, the WebView is set to View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS through AndroidView\'s update block, so the covered page is removed from the accessibility tree, not just from view. The error message is a polite live region, so its appearance is announced. The retry control is a TextButton, which carries the Button role.
+
+The page sits between the heading and the \"Contact support\" button in composition order in both versions. Compose orders an interop View in accessibility traversal according to its position among its Compose siblings, so no extra work was needed for its position. This still needs checking on a device.
+
+The instrumented test for this topic checks the live region, the Button role, and the WebView\'s importantForAccessibility while the error is shown.</string>
+    <string name="webview_scope_developer_note_naive">The page itself is fine, and identical in both versions. The failures are all in the native layer around it.
+
+The error overlay is drawn on top of the WebView, but the WebView stays in the accessibility tree underneath it. A sighted user sees only the error. A TalkBack user can swipe past the error straight into the old page behind it, with nothing to say it is stale. The error message is plain text, so its sudden appearance is not announced. The retry control is a Text with Modifier.clickable: it looks like a button and can be activated, but it announces no role, so nothing tells a screen reader user that it is a control.
+
+None of this is about the web page\'s own accessibility, which belongs to whoever wrote it (EN 301 549 clause 9) and is out of scope here. An embedded WebView is assessed as part of the app, under clause 11, and these failures are the app\'s.</string>
 </resources>
