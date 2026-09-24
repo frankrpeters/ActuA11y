@@ -31,8 +31,10 @@ import de.frpeters.actua11y.ui.topic.contentdescriptions.ContentDescriptionsTopi
 import de.frpeters.actua11y.ui.topic.customactions.CustomActionsTopic
 import de.frpeters.actua11y.ui.topic.darkmode.DarkModeTopic
 import de.frpeters.actua11y.ui.topic.disabledelements.DisabledElementsTopic
+import de.frpeters.actua11y.ui.topic.draggingmovements.DraggingMovementsTopic
 import de.frpeters.actua11y.ui.topic.errorsemantics.ErrorSemanticsTopic
 import de.frpeters.actua11y.ui.topic.focusafternavigation.FocusAfterNavigationTopic
+import de.frpeters.actua11y.ui.topic.focusnotobscured.FocusNotObscuredTopic
 import de.frpeters.actua11y.ui.topic.fontscale.FontScaleTopic
 import de.frpeters.actua11y.ui.topic.genuinetables.GenuineTablesTopic
 import de.frpeters.actua11y.ui.topic.gridsthatarenottables.GridsThatAreNotTablesTopic
@@ -492,6 +494,30 @@ object TopicRegistry {
             bindingFrom = "EN 301 549 V4.1.1",
             content = { showNaive, modifier ->
                 AccessibleAuthenticationTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "dragging_movements",
+            category = TopicCategory.CONTROLS,
+            titleRes = R.string.dragging_movements_title,
+            supportsNaive = true,
+            enClause = "11.2.5.7",
+            wcagVersion = "2.2",
+            bindingFrom = "EN 301 549 V4.1.1",
+            content = { showNaive, modifier ->
+                DraggingMovementsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "focus_not_obscured",
+            category = TopicCategory.VISUAL,
+            titleRes = R.string.focus_not_obscured_title,
+            supportsNaive = true,
+            enClause = "11.2.4.11",
+            wcagVersion = "2.2",
+            bindingFrom = "EN 301 549 V4.1.1",
+            content = { showNaive, modifier ->
+                FocusNotObscuredTopic(showNaive, modifier)
             },
         ),
     )

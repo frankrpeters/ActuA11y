@@ -46,6 +46,25 @@ into a tagged release.
   §3.8 is described in the developer note rather than built, since it would be a second
   Naive-only element. Tests use `performTextInput` as a stand-in for a one-step paste/fill.
   Registry: `11.3.3.8` / WCAG 2.2 / binding from V4.1.1.
+- Dragging Movements topic (`ui/topic/draggingmovements/`, Topic 38, Controls and Interaction) —
+  a reorderable packing list. Both versions share the same long-press-and-drag reordering
+  (`detectDragGesturesAfterLongPress`, in the dispatcher file). Naive: dragging is the only way to
+  reorder. Better: adds "Move up"/"Move down" `customActions` on each row (only the possible
+  moves) and visible arrow `IconButton`s — the arrows are the documented parity exception, since
+  SC 2.5.7 needs a single-pointer alternative that custom actions alone do not provide.
+  `TODO(verify)`: where TalkBack focus lands after a move. Registry: `11.2.5.7` / WCAG 2.2 /
+  binding from V4.1.1.
+- Focus Not Obscured topic (`ui/topic/focusnotobscured/`, Topic 39, Visual and Motor) — payment
+  fields in a fixed-height checkout frame with a pinned pay bar. Naive: the bar is overlaid in a
+  `Box` with bottom padding (the touch-only fix), so the scroll viewport still runs under it and a
+  keyboard-focused field can stay hidden; nothing handles the on-screen keyboard. Better: the bar
+  is laid out beneath the form (`weight(1f)`), and the screen root applies
+  `windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars))`. Correction to
+  requirements §3.8, which lists `BringIntoViewRequester`: reading Compose Foundation 1.8.1's
+  `Focusable.kt` (focus gain calls `bringIntoView()`) and `ContentInViewNode.kt` (a viewport
+  shrink re-reveals the focused child) shows no explicit requester is needed — the fix is the
+  viewport's geometry. The test compares the focused field's bounds with the bar's.
+  Registry: `11.2.4.11` / WCAG 2.2 / binding from V4.1.1.
 
 ### Changed
 

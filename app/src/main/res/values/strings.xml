@@ -621,4 +621,60 @@ The instrumented test for this topic checks that a whole password inserted in on
 What remains is typing a password from memory, character by character. Remembering and transcribing a password is a cognitive function test under WCAG 2.2 SC 3.3.8, and with paste and autofill both gone, there is no mechanism left to help with it. This affects people with memory or cognitive impairments and dyslexia most, and anyone for whom typing a long random string is slow. It adds little security, and mostly pushes people towards shorter, easier-to-remember passwords.
 
 The instrumented test for this topic inserts a whole password in one step and checks that the field rejects it.</string>
+
+    <!-- Dragging Movements topic (requirements §3.8, Topic 38) -->
+    <string name="dragging_movements_title">Dragging Movements</string>
+    <string name="dragging_movements_pane_title">Dragging movements</string>
+    <string name="dragging_movements_intro">Reordering a list by pressing and dragging an item feels natural to someone who can do it. For people who use a keyboard, a switch or a screen reader, or who have a tremor or limited dexterity, a drag may be difficult or impossible, and if it is the only way to reorder, the list cannot be reordered at all.</string>
+    <string name="dragging_movements_what_to_try">Try to move \"Rain jacket\" to the top of the list in each version. With TalkBack on, swipe to a row and open the actions menu. Without TalkBack, try it with the arrow buttons, or long-press and drag.</string>
+    <string name="dragging_movements_section_label">Packing List</string>
+    <string name="dragging_movements_item_passport">Passport</string>
+    <string name="dragging_movements_item_charger">Phone charger</string>
+    <string name="dragging_movements_item_jacket">Rain jacket</string>
+    <string name="dragging_movements_item_boots">Walking boots</string>
+    <string name="dragging_movements_item_first_aid">First aid kit</string>
+    <string name="dragging_movements_action_move_up">Move up</string>
+    <string name="dragging_movements_action_move_down">Move down</string>
+    <string name="dragging_movements_move_up_desc">Move %1$s up</string>
+    <string name="dragging_movements_move_down_desc">Move %1$s down</string>
+    <string name="dragging_movements_developer_note_better">The long-press-and-drag gesture is still here, unchanged from the Naive version. What is added is two ways to do the same thing without dragging.
+
+Each row carries Modifier.semantics { customActions = … } with \"Move up\" and \"Move down\", offered only where the move is possible. A TalkBack user reaches them from the actions menu while staying on the item, with no need to find a separate button.
+
+Each row also has visible arrow buttons (IconButton, with contentDescriptions naming the item, such as \"Move Rain jacket up\"). WCAG 2.2 SC 2.5.7 (Dragging Movements, Level AA; EN 301 549 V4.1.1 clause 11.2.5.7) requires any function that uses a dragging movement to be achievable with a single pointer without dragging, unless dragging is essential. Custom actions alone would not meet that, because they serve assistive technology, not a mouse, stylus or head pointer. The arrow buttons are the one deliberate departure from Naive/Better parity in this topic: an alternative cannot be offered without an element to offer it through.
+
+The instrumented test for this topic checks the custom actions on each row, and that invoking one reorders the list.</string>
+    <string name="dragging_movements_developer_note_naive">The list can only be reordered by long-pressing a row and dragging it, implemented with detectDragGesturesAfterLongPress inside Modifier.pointerInput. There is no other way to move an item.
+
+A keyboard or switch-access user cannot perform the gesture at all. A TalkBack user cannot either in practice, because TalkBack\'s own touch exploration uses those same touches, and nothing in the semantics tree says a reorder is even possible here. Someone with a tremor may manage the long press but lose the drag halfway. WCAG 2.2 SC 2.5.7 (Dragging Movements) requires a non-dragging alternative for exactly this reason.
+
+No lint rule catches this: each row is a valid, visible, non-interactive text row as far as any automated check can tell. The instrumented test for this topic confirms that no row carries a custom action.</string>
+
+    <!-- Focus Not Obscured topic (requirements §3.8, Topic 39) -->
+    <string name="focus_not_obscured_title">Focus Not Obscured</string>
+    <string name="focus_not_obscured_pane_title">Focus not obscured</string>
+    <string name="focus_not_obscured_intro">Bars pinned to the bottom of a screen, and the on-screen keyboard itself, can cover whatever is behind them. If what they cover is the field you are typing into, you are typing blind. Touch users usually just scroll; people moving through a form with a keyboard often cannot tell where they are.</string>
+    <string name="focus_not_obscured_what_to_try">With a physical or Bluetooth keyboard connected, click into the first payment field, then press Tab to move through the fields below. Watch whether each field comes into view above the pay bar as it receives focus. Then try the same by tapping a field, and watch the on-screen keyboard.</string>
+    <string name="focus_not_obscured_section_label">Payment Details</string>
+    <string name="focus_not_obscured_field_card_number">Card number</string>
+    <string name="focus_not_obscured_field_name_on_card">Name on card</string>
+    <string name="focus_not_obscured_field_expiry">Expiry date</string>
+    <string name="focus_not_obscured_field_security_code">Security code</string>
+    <string name="focus_not_obscured_field_postcode">Billing postcode</string>
+    <string name="focus_not_obscured_total">Total: €42.50</string>
+    <string name="focus_not_obscured_pay">Pay now</string>
+    <string name="focus_not_obscured_developer_note_better">Two changes, and neither adds any scrolling code.
+
+First, the pay bar is laid out below the scrolling form, in a Column, with the form given Modifier.weight(1f), rather than overlaid on it in a Box. The form\'s scroll viewport now ends where the bar begins. When a field gains focus, Compose already brings it fully into its scroll container\'s viewport: FocusableNode.onFocusStateChange calls bringIntoView() (Compose Foundation 1.8.1, Focusable.kt). Requirements §3.8 lists BringIntoViewRequester for this topic, but an explicit requester turns out to be unnecessary for focus. Getting the viewport\'s geometry right is the whole fix.
+
+Second, the screen\'s root applies Modifier.windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars)). This app draws edge to edge, so the window is not resized when the keyboard opens. The padding shrinks the scroll viewport by the keyboard\'s height instead, and a scroll container brings back a focused child that a viewport shrink has hidden (ContentInViewNode.kt, onRemeasured). The system bars are excluded because the app\'s Scaffold padding already includes them.
+
+WCAG 2.2 SC 2.4.11 (Focus Not Obscured (Minimum), Level AA; EN 301 549 V4.1.1 clause 11.2.4.11) requires a focused component not to be entirely hidden by content the author created. Test it with a physical keyboard: it has nothing to do with TalkBack\'s focus, and a touch user scrolling by hand never runs into it.</string>
+    <string name="focus_not_obscured_developer_note_naive">The pay bar is overlaid on the scrolling form in a Box, and the form has bottom padding equal to the bar\'s height, so a touch user can still scroll its last field clear of the bar. That is the usual touch-only fix, and it hides the real problem.
+
+The form\'s scroll viewport still runs underneath the bar. When focus moves, Compose scrolls the focused field into the viewport, and a field sitting behind the bar is already inside the viewport by that measure. Nothing moves, and a keyboard user ends up typing into a field they cannot see. WCAG 2.2 SC 2.4.11 (Focus Not Obscured (Minimum)) is about exactly this.
+
+Nothing makes room for the on-screen keyboard either. With edge-to-edge drawing, the window is not resized when the keyboard opens, so a field focused near the bottom of the screen can end up behind the keyboard itself.
+
+No lint rule or TalkBack check catches either problem. Test with a physical keyboard.</string>
 </resources>
