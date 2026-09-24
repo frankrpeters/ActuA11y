@@ -91,6 +91,11 @@ into a tagged release.
   done; only the requirements text had been updated, not the class itself. No existing entry sets
   them — Topic 43 (Switch: platform vs. custom) is deliberately not tied to a single success
   criterion, so `null` is its correct value rather than an omission.
+- `README.md` Coverage now reads "All forty-six are implemented" and lists Topic 46; `CLAUDE.md`
+  topic counts updated to forty-six, and a new "Focus Visibility and Interop — Established By
+  Reading Source" section records the findings from Topics 36, 37 and 39 (source-read, not yet
+  device-confirmed), including that no screen outside Topic 39 handles IME insets under
+  edge-to-edge.
 - New dependency `androidx.biometric:biometric:1.1.0` (latest stable), approved for Topic 41. It
   brings `androidx.fragment` and an older `androidx.appcompat` transitively. `MainActivity` now
   extends `FragmentActivity` (a `ComponentActivity` subclass) because `BiometricPrompt` requires

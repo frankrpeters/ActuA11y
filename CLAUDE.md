@@ -230,6 +230,34 @@ exposed as `Role`/`ContentDescription`/etc.).
 
 ---
 
+## Focus Visibility and Interop — Established By Reading Source
+
+Discovered building Focus Not Obscured, Fixing Accessibility on a Wrapped View, and WebView
+Accessibility Scope (2026-09-24), by reading `foundation-android-1.8.1-sources.jar`. **Not yet
+confirmed on a device** — the matching `TODO(verify)` comments are in those topics' files; update
+this section when they are resolved.
+
+- **Compose already scrolls a newly focused node into view — no `BringIntoViewRequester` needed
+  for focus.** `FocusableNode.onFocusStateChange` (`Focusable.kt`) calls `bringIntoView()` on
+  focus gain, and `ContentInViewNode.onRemeasured` re-reveals a focused child that a *viewport
+  shrink* has clipped (the keyboard opening under `imePadding`). What goes wrong is the viewport's
+  geometry: a bar overlaid on a scroll container in a `Box` leaves the viewport running underneath
+  it, so a field hidden behind the bar counts as "in view" and nothing scrolls. Requirements §3.8
+  lists `BringIntoViewRequester` for Topic 39; this is why it is not used there.
+- **This app draws edge to edge (`enableEdgeToEdge()`), and nothing outside Topic 39 handles IME
+  insets.** `adjustResize` in the manifest no longer resizes the window under edge-to-edge, and
+  `Scaffold`'s default content insets are the system bars, not the IME. Any screen with a text
+  field low on the screen can therefore have it covered by the keyboard. Topic 39's Better version
+  applies `windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars))` at its own root;
+  whether to do the same app-wide (in `AppScaffold`) is an open decision, not yet made.
+- **The Compose semantics tree cannot see inside an `AndroidView`.** A wrapped View's
+  accessibility is built by the View system (`View.createAccessibilityNodeInfo()`, through any
+  `AccessibilityDelegateCompat`), so it must be fixed with View APIs and tested by finding the View
+  in the Activity's hierarchy — `createAndroidComposeRule<ComponentActivity>()`, then
+  `activity.window.decorView` — not with `onNode…` finders. See `WrappedViewTopicTest`.
+
+---
+
 ## Project Structure
 
 ```
@@ -295,8 +323,8 @@ graph by hand, and do not maintain any parallel list of topics anywhere.**
 
 `ui/topic/contentdescriptions/` is the reference structure. Follow it exactly — file layout,
 section order, comment style, preview set. Uniformity matters here more than usual: the
-source code is the product, and thirty-six topics that each look slightly different are
-harder to read than thirty-six that look identical.
+source code is the product, and forty-six topics that each look slightly different are
+harder to read than forty-six that look identical.
 
 ### Topic screen content order
 
@@ -413,7 +441,7 @@ the canonical explanation to point to rather than re-deriving in conversation.
   1. Bump `versionCode` and `versionName` in `app/build.gradle.kts` (Semantic Versioning —
      `0.y.z` while the topic catalogue in requirements §3 is incomplete; `1.0.0` once the
      author judges the reference set complete enough, which is a judgment call, not a
-     mechanical trigger from "all 36 topics implemented").
+     mechanical trigger from "all 46 topics implemented").
   2. **Always update `README.md` and `CLAUDE.md`, not just `CHANGELOG.md`, before tagging.**
      `README.md`'s Coverage section (topic count, per-category lists) is the most common thing
      to drift — it has shipped stale before. `CLAUDE.md` should already be current if its
