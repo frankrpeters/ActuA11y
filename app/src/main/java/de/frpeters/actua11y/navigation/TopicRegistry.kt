@@ -76,6 +76,13 @@ data class Topic(
     val category: TopicCategory,
     @param:StringRes val titleRes: Int,
     val supportsNaive: Boolean,
+    // WHY: the three fields below record where a topic's requirement comes from (requirements
+    // §4.7). They are set on the WCAG 2.2 / EN 301 549 V4.1.1 topics (§3.8) and left null
+    // everywhere else. Nothing in the UI reads them yet — a "binding from" badge is a logged
+    // candidate enhancement, not part of this schema.
+    val enClause: String? = null,       // e.g. "11.2.5.8"; null where no single clause applies
+    val wcagVersion: String? = null,    // "2.1" | "2.2"; null where not WCAG-derived
+    val bindingFrom: String? = null,    // e.g. "EN 301 549 V4.1.1"; null if binding today
     val content: @Composable (showNaive: Boolean, modifier: Modifier) -> Unit,
 ) {
     val route: String get() = "topic/$id"

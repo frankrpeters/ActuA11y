@@ -9,6 +9,17 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Changed
+
+- `Topic` (`navigation/TopicRegistry.kt`) gains the three optional source-metadata fields
+  requirements §4.7 already specified but the code never had: `enClause`, `wcagVersion`, and
+  `bindingFrom`, all defaulting to `null`. `docs/WCAG2.2_addenda.md` had this item ticked off as
+  done; only the requirements text had been updated, not the class itself. No existing entry sets
+  them — Topic 43 (Switch: platform vs. custom) is deliberately not tied to a single success
+  criterion, so `null` is its correct value rather than an omission.
+- `gradlew` is now committed as executable (mode `100755`); it was `100644`, so `./gradlew` failed
+  with "Permission denied" on Linux, including cloud build environments.
+
 ## [0.5.0] - 2026-09-13
 
 ### Added
