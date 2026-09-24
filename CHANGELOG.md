@@ -29,6 +29,23 @@ into a tagged release.
   `supportsNaive = false` (§4.5), placed under Structure and Traversal. Each has three headed
   sections (what the criterion asks, why it does not apply to a native app, what to check
   instead); their tests assert the three headings and the registry's `supportsNaive = false`.
+- Redundant Entry topic (`ui/topic/redundantentry/`, Topic 40, Forms and Input) — a two-step
+  checkout (delivery address, then billing address) with both steps' state hoisted above the step
+  switch in both versions. Naive: step 2 starts empty. Better: step 2's fields are pre-filled from
+  step 1 while still untouched, so a user-edited billing address is never overwritten. Pre-filling
+  was chosen over a "same as delivery" checkbox to keep the layout identical. The shared
+  `AddressFormState` and `AddressFields` live in the dispatcher file, following the
+  `ColourContrastTopic.kt` precedent. Registry: `11.3.3.7` / WCAG 2.2 / binding from V4.1.1.
+- Accessible Authentication topic (`ui/topic/accessibleauthentication/`, Topic 41, Forms and
+  Input). Naive: the password field accepts at most one new character per change, which blocks
+  paste and — as the realistic side effect — password-manager autofill; no `ContentType` on
+  either field. Better: accepts any change, declares `ContentType.Username`/`ContentType.Password`,
+  and offers biometric sign-in through `androidx.biometric`'s `BiometricPrompt`
+  (`BIOMETRIC_WEAK`), with the outcome in a polite live region. The biometric button is the one
+  documented departure from Naive/Better parity. The arithmetic CAPTCHA named in requirements
+  §3.8 is described in the developer note rather than built, since it would be a second
+  Naive-only element. Tests use `performTextInput` as a stand-in for a one-step paste/fill.
+  Registry: `11.3.3.8` / WCAG 2.2 / binding from V4.1.1.
 
 ### Changed
 
@@ -38,6 +55,10 @@ into a tagged release.
   done; only the requirements text had been updated, not the class itself. No existing entry sets
   them — Topic 43 (Switch: platform vs. custom) is deliberately not tied to a single success
   criterion, so `null` is its correct value rather than an omission.
+- New dependency `androidx.biometric:biometric:1.1.0` (latest stable), approved for Topic 41. It
+  brings `androidx.fragment` and an older `androidx.appcompat` transitively. `MainActivity` now
+  extends `FragmentActivity` (a `ComponentActivity` subclass) because `BiometricPrompt` requires
+  one.
 - `gradlew` is now committed as executable (mode `100755`); it was `100644`, so `./gradlew` failed
   with "Permission denied" on Linux, including cloud build environments.
 

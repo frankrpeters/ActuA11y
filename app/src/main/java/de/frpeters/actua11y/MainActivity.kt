@@ -17,13 +17,16 @@
 package de.frpeters.actua11y
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.fragment.app.FragmentActivity
 import de.frpeters.actua11y.ui.AppScaffold
 import de.frpeters.actua11y.ui.theme.ActuA11yTheme
 
-class MainActivity : ComponentActivity() {
+// WHY: FragmentActivity rather than ComponentActivity because androidx.biometric's BiometricPrompt
+// (Topic 41, Accessible Authentication) must be constructed with a FragmentActivity. It is a
+// subclass of ComponentActivity, so setContent and edge-to-edge work unchanged.
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

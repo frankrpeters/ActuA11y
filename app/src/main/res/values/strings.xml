@@ -564,4 +564,61 @@
     <string name="void_parsing_instead_section_label">What to Check Instead</string>
     <string name="void_parsing_instead_body">The real concern behind Parsing lives on in success criterion 4.1.2, Name, Role, Value: every control must expose what it is, what it is called, and what state it is in. Many topics in this app are about exactly that, from content descriptions to custom-drawn switches.</string>
     <string name="void_parsing_developer_note">Content-only topic, with supportsNaive = false in TopicRegistry (requirements §4.5). Its registry entry sets wcagVersion = \"2.2\", the version that removed SC 4.1.1, and leaves enClause and bindingFrom null, because there is no binding clause left to cite. In Compose, the equivalent of \"what assistive technology reads\" is the semantics tree, exposed to accessibility services as AccessibilityNodeInfo objects. The instrumented tests throughout this project assert against that tree directly, which is the practical, native replacement for what Parsing once tried to guarantee about markup.</string>
+
+    <!-- Redundant Entry topic (requirements §3.8, Topic 40) -->
+    <string name="redundant_entry_title">Redundant Entry</string>
+    <string name="redundant_entry_pane_title">Redundant entry</string>
+    <string name="redundant_entry_intro">A form that spreads over several steps sometimes asks for the same information twice, such as an address for delivery and then again for billing. Typing it again is a chore for anyone, and a real barrier for people who find typing slow or tiring, or who find it hard to remember exactly what they entered a moment ago.</string>
+    <string name="redundant_entry_what_to_try">Tap Continue to move from the delivery address to the billing address, and compare what the billing fields contain in each version.</string>
+    <string name="redundant_entry_step1_heading">Step 1 of 2: Delivery Address</string>
+    <string name="redundant_entry_step2_heading">Step 2 of 2: Billing Address</string>
+    <string name="redundant_entry_name_label">Full name</string>
+    <string name="redundant_entry_street_label">Street address</string>
+    <string name="redundant_entry_city_label">City</string>
+    <string name="redundant_entry_continue">Continue</string>
+    <string name="redundant_entry_back">Back</string>
+    <string name="redundant_entry_place_order">Place order</string>
+    <string name="redundant_entry_sample_name">Alex Morgan</string>
+    <string name="redundant_entry_sample_street">12 Harbour Street</string>
+    <string name="redundant_entry_sample_city">Bristol</string>
+    <string name="redundant_entry_developer_note_better">When the user continues from step 1, the billing fields are pre-filled from the delivery address, which is held in the same hoisted state. This happens only while the billing fields are still untouched, so a different billing address the user has already typed is never overwritten by going back and forth.
+
+WCAG 2.2 SC 3.3.7 (Redundant Entry, Level A; EN 301 549 V4.1.1 clause 11.3.3.7) requires information the user has already provided in the same process to be either filled in automatically or available to select. Pre-filling was chosen over a \"same as delivery address\" checkbox because it keeps the layout identical to the Naive version; both meet the criterion. There are exceptions: asking again is allowed when re-entering is essential, when it is needed for security (such as confirming a new password), or when the earlier information is no longer valid.
+
+The instrumented test for this topic checks that each billing field holds the delivery value after Continue.</string>
+    <string name="redundant_entry_developer_note_naive">Step 2 starts with empty fields, even though the delivery address from step 1 is still held in state in the same composable. Nothing connects the two, so the user has to supply all three values again.
+
+For someone using switch access, voice input, or a screen reader with an on-screen keyboard, re-entering an address is slow and error-prone. For someone with a memory impairment, it can mean going back to check what they entered. No lint rule or automated scanner can detect this, because each step is a valid form on its own. The failure is only visible across the whole process.</string>
+
+    <!-- Accessible Authentication topic (requirements §3.8, Topic 41) -->
+    <string name="accessible_authentication_title">Accessible Authentication</string>
+    <string name="accessible_authentication_pane_title">Accessible authentication</string>
+    <string name="accessible_authentication_intro">Signing in usually means remembering a password and typing it exactly. Many people rely on a password manager, or on pasting from somewhere else, to do that. Some sign-in screens block exactly those, in the name of security.</string>
+    <string name="accessible_authentication_what_to_try">Copy some text, then try pasting it into the password field in each version. If you use a password manager, check whether it offers to fill the fields. In the Better version, also try signing in with your fingerprint or face.</string>
+    <string name="accessible_authentication_section_label">Sign In</string>
+    <string name="accessible_authentication_username_label">Username</string>
+    <string name="accessible_authentication_password_label">Password</string>
+    <string name="accessible_authentication_sign_in">Sign in</string>
+    <string name="accessible_authentication_biometric_button">Sign in with fingerprint or face</string>
+    <string name="accessible_authentication_biometric_prompt_title">Sign in to ActuA11y</string>
+    <string name="accessible_authentication_biometric_prompt_cancel">Use password instead</string>
+    <string name="accessible_authentication_biometric_succeeded">Signed in with biometrics.</string>
+    <string name="accessible_authentication_biometric_failed">Biometric sign-in did not complete. You can still sign in with your password.</string>
+    <string name="accessible_authentication_biometric_unavailable">Biometric sign-in is not set up on this device. You can still sign in with your password.</string>
+    <string name="accessible_authentication_developer_note_better">WCAG 2.2 SC 3.3.8 (Accessible Authentication (Minimum), Level AA; EN 301 549 V4.1.1 clause 11.3.3.8) does not allow a sign-in step to rely on a cognitive function test, and remembering a password counts as one, unless an alternative method or an assisting mechanism is available. This version provides both.
+
+The assisting mechanism: the password field accepts any change, so pasting works, and both fields declare Modifier.semantics { contentType = … } with ContentType.Username and ContentType.Password, so a password manager can recognise and fill them. Topic 27 (Autofill Hints) covers content types on their own.
+
+The alternative: biometric sign-in through androidx.biometric\'s BiometricPrompt, allowing BIOMETRIC_WEAK authenticators (fingerprint or face). BiometricPrompt has to be constructed with a FragmentActivity, which is why this app\'s MainActivity extends FragmentActivity rather than ComponentActivity. Availability is checked with BiometricManager.canAuthenticate when the button is pressed, and the outcome is shown in a status line marked as a polite live region.
+
+One departure from this project\'s usual Naive/Better parity: the biometric button exists only in this version, since an alternative cannot be offered without an element to offer it through. Everything else is identical.
+
+The textbook example of a cognitive function test is an arithmetic CAPTCHA (\"What is 7 + 5?\"). It is deliberately not shown here: blocked paste on a password field is the more common real-world form of the same failure, and needs no extra element to demonstrate.
+
+The instrumented test for this topic checks that a whole password inserted in one step is accepted, and that both content types are declared.</string>
+    <string name="accessible_authentication_developer_note_naive">The password field\'s onValueChange accepts at most one new character per change. It is meant to stop pasting, and it does. But a password manager also fills a field in a single change, so autofill is blocked as well, and neither field declares a contentType for a password manager to recognise it by in the first place.
+
+What remains is typing a password from memory, character by character. Remembering and transcribing a password is a cognitive function test under WCAG 2.2 SC 3.3.8, and with paste and autofill both gone, there is no mechanism left to help with it. This affects people with memory or cognitive impairments and dyslexia most, and anyone for whom typing a long random string is slow. It adds little security, and mostly pushes people towards shorter, easier-to-remember passwords.
+
+The instrumented test for this topic inserts a whole password in one step and checks that the field rejects it.</string>
 </resources>

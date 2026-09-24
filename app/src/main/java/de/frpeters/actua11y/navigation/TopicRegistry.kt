@@ -20,6 +20,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import de.frpeters.actua11y.R
+import de.frpeters.actua11y.ui.topic.accessibleauthentication.AccessibleAuthenticationTopic
 import de.frpeters.actua11y.ui.topic.announceforaccessibility.AnnounceForAccessibilityTopic
 import de.frpeters.actua11y.ui.topic.autofillhints.AutofillHintsTopic
 import de.frpeters.actua11y.ui.topic.colourcontrast.ColourContrastTopic
@@ -49,6 +50,7 @@ import de.frpeters.actua11y.ui.topic.panetitles.PaneTitlesTopic
 import de.frpeters.actua11y.ui.topic.pinshowhide.PinShowHideTopic
 import de.frpeters.actua11y.ui.topic.progressandsliders.ProgressAndSlidersTopic
 import de.frpeters.actua11y.ui.topic.reducedmotion.ReducedMotionTopic
+import de.frpeters.actua11y.ui.topic.redundantentry.RedundantEntryTopic
 import de.frpeters.actua11y.ui.topic.selectablecopyabletext.SelectableCopyableTextTopic
 import de.frpeters.actua11y.ui.topic.selectableiconlists.SelectableIconListsTopic
 import de.frpeters.actua11y.ui.topic.statevscontentdescription.StateVsContentDescriptionTopic
@@ -466,6 +468,30 @@ object TopicRegistry {
             supportsNaive = true,
             content = { showNaive, modifier ->
                 ConcatenatedDescriptionsTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "redundant_entry",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.redundant_entry_title,
+            supportsNaive = true,
+            enClause = "11.3.3.7",
+            wcagVersion = "2.2",
+            bindingFrom = "EN 301 549 V4.1.1",
+            content = { showNaive, modifier ->
+                RedundantEntryTopic(showNaive, modifier)
+            },
+        ),
+        Topic(
+            id = "accessible_authentication",
+            category = TopicCategory.FORMS,
+            titleRes = R.string.accessible_authentication_title,
+            supportsNaive = true,
+            enClause = "11.3.3.8",
+            wcagVersion = "2.2",
+            bindingFrom = "EN 301 549 V4.1.1",
+            content = { showNaive, modifier ->
+                AccessibleAuthenticationTopic(showNaive, modifier)
             },
         ),
     )
