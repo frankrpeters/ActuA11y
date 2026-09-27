@@ -230,6 +230,25 @@ exposed as `Role`/`ContentDescription`/etc.).
 
 ---
 
+## AnnotatedString Styling and Semantics — Established By Trial
+
+Discovered fixing `NaiveToggle`'s label (2026-09-27), confirmed by instrumented test on a real
+device (Pixel 9 Pro, API 37). Relevant to any future control that needs to add a purely visual
+emphasis (bold, colour) to part of a label without changing what TalkBack announces.
+
+- **`SpanStyle` applied via `buildAnnotatedString`/`withStyle` has no effect on the semantics
+  tree's `Text` property or on the text a screen reader speaks.** The merged node's plain text
+  content is identical whether or not any spans are applied — only the rendered pixels differ.
+  This means a control's accessible name and `stateDescription` can stay exactly as they were
+  while its *visible* label gains a bold/coloured word for sighted users, with zero risk of
+  double-announcing or otherwise changing the TalkBack experience. Confirmed by instrumented test
+  reading the merged node's own `AnnotatedString.spanStyles` back (the same idiom the Verbatim
+  Strings topic uses for TTS annotations) — the span is a real, assertable property of the Text
+  value itself, not just a visual claim requiring `captureToImage()`. See
+  `ui/components/NaiveToggleTest.kt`.
+
+---
+
 ## Focus Visibility and Interop — Established By Reading Source
 
 Discovered building Focus Not Obscured, Fixing Accessibility on a Wrapped View, and WebView
