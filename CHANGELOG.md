@@ -9,6 +9,8 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-27
+
 ### Added
 
 - Consistent Identification topic (`ui/topic/consistentidentification/`, Topic 42, Text and
@@ -102,6 +104,29 @@ into a tagged release.
   one.
 - `gradlew` is now committed as executable (mode `100755`); it was `100644`, so `./gradlew` failed
   with "Permission denied" on Linux, including cloud build environments.
+- AGP 9.3.2 → 9.4.1, Gradle 9.5.0 → 9.6.0. Verified clean (compile, lint, `assembleDebug`/
+  `assembleRelease`, and the full `connectedDebugAndroidTest` suite) both alone and combined with
+  the ten new topics below.
+- `CLAUDE.md`'s structural invariant 2 (Naive/Better parity) gains a documented third category:
+  when a requirement itself is to offer an alternative affordance (WCAG 2.5.7, 3.3.8), Better may
+  carry one element Naive structurally cannot, with a `// WHY:` comment naming whether that
+  element is *required* (the criterion fails outright without it, for some population) or an
+  *idiom* layered on top (there for one assistive-technology population's efficiency, not because
+  the criterion demands it). Covers Topics 38 and 41, both confirmed with the project author as
+  intentional rather than an unexplained rule violation.
+- README's "Work in progress" banner reworded from "not every topic has shipped in a release yet"
+  to reflect this release actually shipping all forty-six.
+
+### Fixed
+
+- `RedundantEntryTopicTest`'s two tests both failed on a real device: the "Continue" button sits
+  below the fold on the test host's default window, and `performClick()` dispatches to the node's
+  actual on-screen coordinates rather than scrolling to it first, so the click silently landed
+  nowhere and step 2 was never reached. Production code was already correct — fixed by adding
+  `performScrollTo()` before `performClick()` in the test.
+- README's Coverage section and its "Work in progress" banner briefly contradicted each other
+  after the topic catalogue was completed (one said all forty-six topics were implemented, the
+  other still said not every topic was implemented) — reworded for consistency.
 
 ## [0.5.0] - 2026-09-13
 
@@ -553,7 +578,8 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.6.0...dev
+[0.6.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0

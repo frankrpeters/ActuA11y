@@ -11,7 +11,7 @@
 
 </div>
 
-> ⚠️ **Work in progress.** This README describes the intended shape of the project. The full topic catalogue below now exists in source, but not every topic has shipped in a release yet. See [Releases](../../releases) for what actually exists today.
+> ⚠️ **Pre-1.0.** All forty-six topics below are implemented as of this release. The version stays `0.y.z` until they've had a proper testing pass — that's a judgment call, not a checklist. See [Releases](../../releases) for the current version.
 
 ---
 

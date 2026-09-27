@@ -19,7 +19,7 @@ Every topic exists in two implementations — **Naive** and **Better** — selec
 a toggle in the app bar. Both are compiled into every build variant.
 
 - Package: `de.frpeters.actua11y`
-- AGP 9.3.2 | compileSdk 36 | minSdk 28
+- AGP 9.4.1 | compileSdk 36 | minSdk 28
 - Kotlin, Jetpack Compose only
 - License: Apache 2.0 — every source file carries the header
 
@@ -42,7 +42,7 @@ a toggle in the app bar. Both are compiled into every build variant.
 ## AGP Behaviour — Established By Trial
 
 These were discovered by hitting them. Do not "correct" them back. Confirmed still true as of
-AGP 9.3.2 / Kotlin 2.2.10 / Gradle 9.5.0.
+AGP 9.4.1 / Kotlin 2.2.10 / Gradle 9.6.0.
 
 - **Do NOT apply `org.jetbrains.kotlin.android`** in `app/build.gradle.kts`. AGP registers the
   `kotlin` extension internally; applying the plugin explicitly causes
