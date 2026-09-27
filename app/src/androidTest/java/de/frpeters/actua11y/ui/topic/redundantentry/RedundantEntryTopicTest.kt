@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.frpeters.actua11y.R
@@ -52,7 +53,12 @@ class RedundantEntryTopicTest {
             MaterialTheme { RedundantEntryBetter() }
         }
 
-        composeTestRule.onNodeWithTag("redundant_entry_continue").performClick()
+        // WHY: the Continue button sits below the fold on the test host's default window size —
+        // three text fields plus the intro copy push it out of the initial viewport. performClick()
+        // alone dispatches to the node's actual on-screen coordinates and silently does nothing if
+        // those fall outside the visible window; performScrollTo() first is what makes the click
+        // land, the same as a real user having to scroll before they can tap it.
+        composeTestRule.onNodeWithTag("redundant_entry_continue").performScrollTo().performClick()
 
         assertEquals(
             context.getString(R.string.redundant_entry_sample_name),
@@ -74,7 +80,7 @@ class RedundantEntryTopicTest {
             MaterialTheme { RedundantEntryNaive() }
         }
 
-        composeTestRule.onNodeWithTag("redundant_entry_continue").performClick()
+        composeTestRule.onNodeWithTag("redundant_entry_continue").performScrollTo().performClick()
 
         assertEquals("", fieldText("redundant_entry_billing_name"))
         assertEquals("", fieldText("redundant_entry_billing_street"))

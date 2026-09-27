@@ -11,7 +11,7 @@
 
 </div>
 
-> ⚠️ **Work in progress.** This README describes the intended shape of the project. Not all topic screens are implemented yet. See [Releases](../../releases) for what actually exists today.
+> ⚠️ **Work in progress.** This README describes the intended shape of the project. The full topic catalogue below now exists in source, but not every topic has shipped in a release yet. See [Releases](../../releases) for what actually exists today.
 
 ---
 
