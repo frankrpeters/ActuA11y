@@ -502,4 +502,226 @@
     <string name="colour_contrast_developer_note_naive">Status is conveyed only by the dot\'s colour — nothing else in this row\'s merged semantics text says "Delivered", "Pending", or "Cancelled", confirmed by an instrumented test reading the row\'s own text back. The colours themselves also measure under 3:1 against the fixed #F5F5F5 card background using the WCAG relative-luminance formula — delivered ≈1.51:1, pending ≈1.02:1, cancelled ≈1.97:1 — all well below the 3:1 WCAG 1.4.11 minimum for non-text UI components, so even a sighted user with low vision may struggle to tell the dots apart from the card itself.\n\nWCAG AA contrast-ratio compliance itself is a Level 2 (Accessibility Test Framework) concern per TESTING.md, not something a Level 1 semantics-tree instrumented test can verify; the numbers above are a deterministic formula applied to this screen\'s own fixed colours, not a device measurement or an ATF scan.\n\nSee the Better version for the fix: androidx.compose.material3.Icon</string>
 
     <string name="custom_actions_developer_note">Archive and Delete are reachable only by swiping this row — there is no persistent button for either, matching how messaging and email apps commonly build this pattern for a sighted, touch user. Modifier.semantics { customActions = listOf(CustomAccessibilityAction(label) { ... }) } is what gives a keyboard or TalkBack user a local-context-menu equivalent for the same two actions, so reaching them never depends on performing the swipe gesture itself. Confirmed by an instrumented test reading this node\'s own semantics back: SemanticsActions.CustomActions carries both actions, with the exact labels shown in that menu.\n\nThis is the flip side of a related, still-open topic-backlog item: suppressing default actions that do not fit a component (a fixed-length PIN field\'s inherited "select all"/"move cursor" actions, for instance) is about removing unwanted ones; this topic is about deliberately adding well-chosen ones that would otherwise require a gesture with no equivalent.\n\nTODO(verify): confirm on a real device with TalkBack that both actions actually surface in its own local context menu with the expected labels, and that invoking one from there genuinely triggers it without needing the swipe gesture to complete — the source above establishes what semantics Compose exposes, not how TalkBack\'s own menu presents them.\n\nSee: androidx.compose.ui.semantics.CustomAccessibilityAction, androidx.compose.material3.SwipeToDismissBox</string>
+
+    <!-- Consistent Identification topic (requirements §3.8, Topic 42) -->
+    <string name="consistent_identification_title">Consistent Identification</string>
+    <string name="consistent_identification_pane_title">Consistent identification</string>
+    <string name="consistent_identification_intro">When the same action appears in more than one place, it should be called the same thing everywhere. A sighted user recognises the same icon at a glance. A screen reader user has only the name to go on.</string>
+    <string name="consistent_identification_what_to_try">Turn on TalkBack and swipe onto the heart button next to the search result, then onto the heart button in the product details. Listen for whether the two buttons are given the same name.</string>
+    <string name="consistent_identification_results_section_label">Search Results</string>
+    <string name="consistent_identification_details_section_label">Product Details</string>
+    <string name="consistent_identification_product_name">Trail running shoes</string>
+    <string name="consistent_identification_product_description">Lightweight, with a reinforced toe cap. Available in sizes 38 to 47.</string>
+    <string name="consistent_identification_save_action">Save for later</string>
+    <string name="consistent_identification_save_action_naive_list">Save</string>
+    <string name="consistent_identification_save_action_naive_details">Add to wishlist</string>
+    <string name="consistent_identification_developer_note_better">Both heart buttons take their contentDescription from the same string resource, consistent_identification_save_action. WCAG SC 3.2.4 (Consistent Identification, Level AA) requires components with the same function to be identified consistently across a set of screens. EN 301 549 V3.2.1 marked the matching software clause, 11.3.2.4, as void; V4.1.1 applies it to non-web software, which is why this topic sits with the WCAG 2.2 / V4.1.1 additions even though the success criterion itself is older. Nothing in Compose or Android lint can check this. Drawing each action\'s name from one resource makes drift structurally unlikely rather than a matter of two developers happening to choose the same words, and a translator translates the one string once. The instrumented test for this topic asserts that both buttons expose an identical content description.</string>
+    <string name="consistent_identification_developer_note_naive">Both heart buttons are labelled, so this is not a missing-label failure. The search result calls the action \"Save\"; the product details call it \"Add to wishlist\". Each label was presumably written by a different person at a different time, and each is fine on its own. A sighted user sees the same icon in both places and never notices. A TalkBack user hears two different names and has to guess whether they do the same thing, or try both to find out. No lint rule or automated scanner flags this, because each label is individually valid. The failure only exists between the two.</string>
+
+    <!-- Concatenated Content Descriptions topic (requirements §3.9, Topic 46) -->
+    <string name="concatenated_descriptions_title">Concatenated Content Descriptions</string>
+    <string name="concatenated_descriptions_pane_title">Concatenated content descriptions</string>
+    <string name="concatenated_descriptions_intro">Summary cards often combine several facts into one spoken description, so that the whole card is a single stop. If those facts are strung together without breaks, they are read as one long sentence at full speaking speed, and the listener has to work out where one fact ends and the next begins.</string>
+    <string name="concatenated_descriptions_what_to_try">Turn on TalkBack and swipe onto the order card below. Listen for whether you can tell where the order number ends and the delivery status begins.</string>
+    <string name="concatenated_descriptions_section_label">Latest Order</string>
+    <string name="concatenated_descriptions_order_number">Order 5829174</string>
+    <string name="concatenated_descriptions_status">Delivered</string>
+    <string name="concatenated_descriptions_total">Total €42.50</string>
+    <string name="concatenated_descriptions_delivery_date">Arrived on Tuesday, 15 September</string>
+    <string name="concatenated_descriptions_developer_note_better">The card uses clearAndSetSemantics { contentDescription = … } so that it is one TalkBack stop, and the description is built from five segments joined with a line break (\\n) instead of a space. TalkBack treats a line break inside a content description as a pause (requirements §3.9, a finding from real-world use), so each fact arrives as its own short statement. The visible card shows the same five segments on separate lines, so the spoken and visual structure match. The instrumented test for this topic asserts that the description contains exactly four line breaks. One segment here, the order number, also has a second, independent problem covered by Topic 21 (Verbatim Strings): a plain String content description cannot carry a VerbatimTtsAnnotation, so its digits may still be read as a quantity. Segmenting fixes the boundaries between facts, not how each fact is pronounced.</string>
+    <string name="concatenated_descriptions_developer_note_naive">The card is a single TalkBack stop with a complete, accurate description; every fact is there. But the five segments are joined with plain spaces, so TalkBack reads them as one continuous utterance: \"Order 5829174 Delivered 3 items Total €42.50 Arrived on Tuesday, 15 September\". At normal speech tempo the boundaries disappear, and the order number, status and item count run into each other. No lint rule catches this: the description is non-empty and correct. The fix is small: join the segments with \\n, which TalkBack treats as a pause.</string>
+    <plurals name="concatenated_descriptions_item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+
+    <!-- Void Clause: Consistent Help topic (requirements §3.8, Topic 44) -->
+    <string name="void_consistent_help_title">Void Clause: Consistent Help</string>
+    <string name="void_consistent_help_pane_title">Void clause: consistent help</string>
+    <string name="void_consistent_help_intro">Accessibility checklists are often written for websites and then applied to apps unchanged. Some of their items do not apply to a native app at all. This screen explains one of them.</string>
+    <string name="void_consistent_help_no_naive_label">Why there is no naive version here</string>
+    <string name="void_consistent_help_no_naive_explanation">There is nothing to build wrongly: the requirement described below does not apply to native apps, so there is no pattern to demonstrate. The toggle above is disabled for this reason; this note is the only version.</string>
+    <string name="void_consistent_help_what_to_try">With TalkBack on, use heading navigation to move between the three sections below.</string>
+    <string name="void_consistent_help_criterion_section_label">What the Criterion Asks</string>
+    <string name="void_consistent_help_criterion_body">WCAG 2.2 added success criterion 3.2.6, Consistent Help (Level A). If a set of web pages offers help, such as contact details, a contact form, a self-help page or a chat assistant, that help must appear in the same order relative to the other content on every page where it is repeated.</string>
+    <string name="void_consistent_help_scope_section_label">Why It Does Not Apply Here</string>
+    <string name="void_consistent_help_scope_body">The criterion is defined in terms of a set of web pages. EN 301 549, the European standard that applies WCAG to software, does not carry it over to non-web software: the corresponding software clause is void. An audit of a native Android app that lists Consistent Help as a failure has applied a web checklist unchanged.</string>
+    <string name="void_consistent_help_instead_section_label">What to Check Instead</string>
+    <string name="void_consistent_help_instead_body">It is still good design. If your app has a help entry point, keeping it in the same place on every screen helps everyone, and especially people with cognitive disabilities. And if your organisation also runs a website, the criterion applies there in full.</string>
+    <string name="void_consistent_help_developer_note">Content-only topic, with supportsNaive = false in TopicRegistry (requirements §4.5). Its registry entry sets wcagVersion = \"2.2\", since SC 3.2.6 is new in WCAG 2.2, but leaves enClause and bindingFrom null, because there is no binding software clause to cite. The point is a correction rather than a pattern: native software is assessed under EN 301 549 clause 11, not clause 9 (web), and clause 11 is not a copy of WCAG. Some success criteria are void for software, and some are worded differently. Check the clause 11 table rather than the WCAG list when auditing an app.</string>
+
+    <!-- Void Clause: Parsing topic (requirements §3.8, Topic 45) -->
+    <string name="void_parsing_title">Void Clause: Parsing</string>
+    <string name="void_parsing_pane_title">Void clause: parsing</string>
+    <string name="void_parsing_intro">Accessibility checklists are often written for websites and then applied to apps unchanged. Some of their items no longer apply anywhere. This screen explains one of them.</string>
+    <string name="void_parsing_no_naive_label">Why there is no naive version here</string>
+    <string name="void_parsing_no_naive_explanation">There is nothing to build wrongly: the requirement described below has been withdrawn, and never had a native-app equivalent. The toggle above is disabled for this reason; this note is the only version.</string>
+    <string name="void_parsing_what_to_try">With TalkBack on, use heading navigation to move between the three sections below.</string>
+    <string name="void_parsing_criterion_section_label">What the Criterion Asked</string>
+    <string name="void_parsing_criterion_body">Success criterion 4.1.1, Parsing (Level A), required web markup to be well-formed: complete start and end tags, correct nesting, no duplicate attributes, and unique IDs. It existed because early assistive technologies read a page\'s markup directly and could fail on malformed markup.</string>
+    <string name="void_parsing_scope_section_label">Why It Does Not Apply Here</string>
+    <string name="void_parsing_scope_body">WCAG 2.2 removed the criterion entirely: browsers now repair malformed markup before assistive technology ever sees it, and the problems that still matter are covered by other criteria. A native Android app has no markup for anything to parse at all. Screen readers read the accessibility tree the app exposes, not source code.</string>
+    <string name="void_parsing_instead_section_label">What to Check Instead</string>
+    <string name="void_parsing_instead_body">The real concern behind Parsing lives on in success criterion 4.1.2, Name, Role, Value: every control must expose what it is, what it is called, and what state it is in. Many topics in this app are about exactly that, from content descriptions to custom-drawn switches.</string>
+    <string name="void_parsing_developer_note">Content-only topic, with supportsNaive = false in TopicRegistry (requirements §4.5). Its registry entry sets wcagVersion = \"2.2\", the version that removed SC 4.1.1, and leaves enClause and bindingFrom null, because there is no binding clause left to cite. In Compose, the equivalent of \"what assistive technology reads\" is the semantics tree, exposed to accessibility services as AccessibilityNodeInfo objects. The instrumented tests throughout this project assert against that tree directly, which is the practical, native replacement for what Parsing once tried to guarantee about markup.</string>
+
+    <!-- Redundant Entry topic (requirements §3.8, Topic 40) -->
+    <string name="redundant_entry_title">Redundant Entry</string>
+    <string name="redundant_entry_pane_title">Redundant entry</string>
+    <string name="redundant_entry_intro">A form that spreads over several steps sometimes asks for the same information twice, such as an address for delivery and then again for billing. Typing it again is a chore for anyone, and a real barrier for people who find typing slow or tiring, or who find it hard to remember exactly what they entered a moment ago.</string>
+    <string name="redundant_entry_what_to_try">Tap Continue to move from the delivery address to the billing address, and compare what the billing fields contain in each version.</string>
+    <string name="redundant_entry_step1_heading">Step 1 of 2: Delivery Address</string>
+    <string name="redundant_entry_step2_heading">Step 2 of 2: Billing Address</string>
+    <string name="redundant_entry_name_label">Full name</string>
+    <string name="redundant_entry_street_label">Street address</string>
+    <string name="redundant_entry_city_label">City</string>
+    <string name="redundant_entry_continue">Continue</string>
+    <string name="redundant_entry_back">Back</string>
+    <string name="redundant_entry_place_order">Place order</string>
+    <string name="redundant_entry_sample_name">Alex Morgan</string>
+    <string name="redundant_entry_sample_street">12 Harbour Street</string>
+    <string name="redundant_entry_sample_city">Bristol</string>
+    <string name="redundant_entry_developer_note_better">When the user continues from step 1, the billing fields are pre-filled from the delivery address, which is held in the same hoisted state. This happens only while the billing fields are still untouched, so a different billing address the user has already typed is never overwritten by going back and forth.
+
+WCAG 2.2 SC 3.3.7 (Redundant Entry, Level A; EN 301 549 V4.1.1 clause 11.3.3.7) requires information the user has already provided in the same process to be either filled in automatically or available to select. Pre-filling was chosen over a \"same as delivery address\" checkbox because it keeps the layout identical to the Naive version; both meet the criterion. There are exceptions: asking again is allowed when re-entering is essential, when it is needed for security (such as confirming a new password), or when the earlier information is no longer valid.
+
+The instrumented test for this topic checks that each billing field holds the delivery value after Continue.</string>
+    <string name="redundant_entry_developer_note_naive">Step 2 starts with empty fields, even though the delivery address from step 1 is still held in state in the same composable. Nothing connects the two, so the user has to supply all three values again.
+
+For someone using switch access, voice input, or a screen reader with an on-screen keyboard, re-entering an address is slow and error-prone. For someone with a memory impairment, it can mean going back to check what they entered. No lint rule or automated scanner can detect this, because each step is a valid form on its own. The failure is only visible across the whole process.</string>
+
+    <!-- Accessible Authentication topic (requirements §3.8, Topic 41) -->
+    <string name="accessible_authentication_title">Accessible Authentication</string>
+    <string name="accessible_authentication_pane_title">Accessible authentication</string>
+    <string name="accessible_authentication_intro">Signing in usually means remembering a password and typing it exactly. Many people rely on a password manager, or on pasting from somewhere else, to do that. Some sign-in screens block exactly those, in the name of security.</string>
+    <string name="accessible_authentication_what_to_try">Copy some text, then try pasting it into the password field in each version. If you use a password manager, check whether it offers to fill the fields. In the Better version, also try signing in with your fingerprint or face.</string>
+    <string name="accessible_authentication_section_label">Sign In</string>
+    <string name="accessible_authentication_username_label">Username</string>
+    <string name="accessible_authentication_password_label">Password</string>
+    <string name="accessible_authentication_sign_in">Sign in</string>
+    <string name="accessible_authentication_biometric_button">Sign in with fingerprint or face</string>
+    <string name="accessible_authentication_biometric_prompt_title">Sign in to ActuA11y</string>
+    <string name="accessible_authentication_biometric_prompt_cancel">Use password instead</string>
+    <string name="accessible_authentication_biometric_succeeded">Signed in with biometrics.</string>
+    <string name="accessible_authentication_biometric_failed">Biometric sign-in did not complete. You can still sign in with your password.</string>
+    <string name="accessible_authentication_biometric_unavailable">Biometric sign-in is not set up on this device. You can still sign in with your password.</string>
+    <string name="accessible_authentication_developer_note_better">WCAG 2.2 SC 3.3.8 (Accessible Authentication (Minimum), Level AA; EN 301 549 V4.1.1 clause 11.3.3.8) does not allow a sign-in step to rely on a cognitive function test, and remembering a password counts as one, unless an alternative method or an assisting mechanism is available. This version provides both.
+
+The assisting mechanism: the password field accepts any change, so pasting works, and both fields declare Modifier.semantics { contentType = … } with ContentType.Username and ContentType.Password, so a password manager can recognise and fill them. Topic 27 (Autofill Hints) covers content types on their own.
+
+The alternative: biometric sign-in through androidx.biometric\'s BiometricPrompt, allowing BIOMETRIC_WEAK authenticators (fingerprint or face). BiometricPrompt has to be constructed with a FragmentActivity, which is why this app\'s MainActivity extends FragmentActivity rather than ComponentActivity. Availability is checked with BiometricManager.canAuthenticate when the button is pressed, and the outcome is shown in a status line marked as a polite live region.
+
+One departure from this project\'s usual Naive/Better parity: the biometric button exists only in this version, since an alternative cannot be offered without an element to offer it through. Everything else is identical.
+
+The textbook example of a cognitive function test is an arithmetic CAPTCHA (\"What is 7 + 5?\"). It is deliberately not shown here: blocked paste on a password field is the more common real-world form of the same failure, and needs no extra element to demonstrate.
+
+The instrumented test for this topic checks that a whole password inserted in one step is accepted, and that both content types are declared.</string>
+    <string name="accessible_authentication_developer_note_naive">The password field\'s onValueChange accepts at most one new character per change. It is meant to stop pasting, and it does. But a password manager also fills a field in a single change, so autofill is blocked as well, and neither field declares a contentType for a password manager to recognise it by in the first place.
+
+What remains is typing a password from memory, character by character. Remembering and transcribing a password is a cognitive function test under WCAG 2.2 SC 3.3.8, and with paste and autofill both gone, there is no mechanism left to help with it. This affects people with memory or cognitive impairments and dyslexia most, and anyone for whom typing a long random string is slow. It adds little security, and mostly pushes people towards shorter, easier-to-remember passwords.
+
+The instrumented test for this topic inserts a whole password in one step and checks that the field rejects it.</string>
+
+    <!-- Dragging Movements topic (requirements §3.8, Topic 38) -->
+    <string name="dragging_movements_title">Dragging Movements</string>
+    <string name="dragging_movements_pane_title">Dragging movements</string>
+    <string name="dragging_movements_intro">Reordering a list by pressing and dragging an item feels natural to someone who can do it. For people who use a keyboard, a switch or a screen reader, or who have a tremor or limited dexterity, a drag may be difficult or impossible, and if it is the only way to reorder, the list cannot be reordered at all.</string>
+    <string name="dragging_movements_what_to_try">Try to move \"Rain jacket\" to the top of the list in each version. With TalkBack on, swipe to a row and open the actions menu. Without TalkBack, try it with the arrow buttons, or long-press and drag.</string>
+    <string name="dragging_movements_section_label">Packing List</string>
+    <string name="dragging_movements_item_passport">Passport</string>
+    <string name="dragging_movements_item_charger">Phone charger</string>
+    <string name="dragging_movements_item_jacket">Rain jacket</string>
+    <string name="dragging_movements_item_boots">Walking boots</string>
+    <string name="dragging_movements_item_first_aid">First aid kit</string>
+    <string name="dragging_movements_action_move_up">Move up</string>
+    <string name="dragging_movements_action_move_down">Move down</string>
+    <string name="dragging_movements_move_up_desc">Move %1$s up</string>
+    <string name="dragging_movements_move_down_desc">Move %1$s down</string>
+    <string name="dragging_movements_developer_note_better">The long-press-and-drag gesture is still here, unchanged from the Naive version. What is added is two ways to do the same thing without dragging.
+
+Each row carries Modifier.semantics { customActions = … } with \"Move up\" and \"Move down\", offered only where the move is possible. A TalkBack user reaches them from the actions menu while staying on the item, with no need to find a separate button.
+
+Each row also has visible arrow buttons (IconButton, with contentDescriptions naming the item, such as \"Move Rain jacket up\"). WCAG 2.2 SC 2.5.7 (Dragging Movements, Level AA; EN 301 549 V4.1.1 clause 11.2.5.7) requires any function that uses a dragging movement to be achievable with a single pointer without dragging, unless dragging is essential. Custom actions alone would not meet that, because they serve assistive technology, not a mouse, stylus or head pointer. The arrow buttons are the one deliberate departure from Naive/Better parity in this topic: an alternative cannot be offered without an element to offer it through.
+
+The instrumented test for this topic checks the custom actions on each row, and that invoking one reorders the list.</string>
+    <string name="dragging_movements_developer_note_naive">The list can only be reordered by long-pressing a row and dragging it, implemented with detectDragGesturesAfterLongPress inside Modifier.pointerInput. There is no other way to move an item.
+
+A keyboard or switch-access user cannot perform the gesture at all. A TalkBack user cannot either in practice, because TalkBack\'s own touch exploration uses those same touches, and nothing in the semantics tree says a reorder is even possible here. Someone with a tremor may manage the long press but lose the drag halfway. WCAG 2.2 SC 2.5.7 (Dragging Movements) requires a non-dragging alternative for exactly this reason.
+
+No lint rule catches this: each row is a valid, visible, non-interactive text row as far as any automated check can tell. The instrumented test for this topic confirms that no row carries a custom action.</string>
+
+    <!-- Focus Not Obscured topic (requirements §3.8, Topic 39) -->
+    <string name="focus_not_obscured_title">Focus Not Obscured</string>
+    <string name="focus_not_obscured_pane_title">Focus not obscured</string>
+    <string name="focus_not_obscured_intro">Bars pinned to the bottom of a screen, and the on-screen keyboard itself, can cover whatever is behind them. If what they cover is the field you are typing into, you are typing blind. Touch users usually just scroll; people moving through a form with a keyboard often cannot tell where they are.</string>
+    <string name="focus_not_obscured_what_to_try">With a physical or Bluetooth keyboard connected, click into the first payment field, then press Tab to move through the fields below. Watch whether each field comes into view above the pay bar as it receives focus. Then try the same by tapping a field, and watch the on-screen keyboard.</string>
+    <string name="focus_not_obscured_section_label">Payment Details</string>
+    <string name="focus_not_obscured_field_card_number">Card number</string>
+    <string name="focus_not_obscured_field_name_on_card">Name on card</string>
+    <string name="focus_not_obscured_field_expiry">Expiry date</string>
+    <string name="focus_not_obscured_field_security_code">Security code</string>
+    <string name="focus_not_obscured_field_postcode">Billing postcode</string>
+    <string name="focus_not_obscured_total">Total: €42.50</string>
+    <string name="focus_not_obscured_pay">Pay now</string>
+    <string name="focus_not_obscured_developer_note_better">Two changes, and neither adds any scrolling code.
+
+First, the pay bar is laid out below the scrolling form, in a Column, with the form given Modifier.weight(1f), rather than overlaid on it in a Box. The form\'s scroll viewport now ends where the bar begins. When a field gains focus, Compose already brings it fully into its scroll container\'s viewport: FocusableNode.onFocusStateChange calls bringIntoView() (Compose Foundation 1.8.1, Focusable.kt). Requirements §3.8 lists BringIntoViewRequester for this topic, but an explicit requester turns out to be unnecessary for focus. Getting the viewport\'s geometry right is the whole fix.
+
+Second, the screen\'s root applies Modifier.windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars)). This app draws edge to edge, so the window is not resized when the keyboard opens. The padding shrinks the scroll viewport by the keyboard\'s height instead, and a scroll container brings back a focused child that a viewport shrink has hidden (ContentInViewNode.kt, onRemeasured). The system bars are excluded because the app\'s Scaffold padding already includes them.
+
+WCAG 2.2 SC 2.4.11 (Focus Not Obscured (Minimum), Level AA; EN 301 549 V4.1.1 clause 11.2.4.11) requires a focused component not to be entirely hidden by content the author created. Test it with a physical keyboard: it has nothing to do with TalkBack\'s focus, and a touch user scrolling by hand never runs into it.</string>
+    <string name="focus_not_obscured_developer_note_naive">The pay bar is overlaid on the scrolling form in a Box, and the form has bottom padding equal to the bar\'s height, so a touch user can still scroll its last field clear of the bar. That is the usual touch-only fix, and it hides the real problem.
+
+The form\'s scroll viewport still runs underneath the bar. When focus moves, Compose scrolls the focused field into the viewport, and a field sitting behind the bar is already inside the viewport by that measure. Nothing moves, and a keyboard user ends up typing into a field they cannot see. WCAG 2.2 SC 2.4.11 (Focus Not Obscured (Minimum)) is about exactly this.
+
+Nothing makes room for the on-screen keyboard either. With edge-to-edge drawing, the window is not resized when the keyboard opens, so a field focused near the bottom of the screen can end up behind the keyboard itself.
+
+No lint rule or TalkBack check catches either problem. Test with a physical keyboard.</string>
+
+    <!-- Fixing Accessibility on a Wrapped View topic (requirements §3.7, Topic 36) -->
+    <string name="wrapped_view_title">Fixing Accessibility on a Wrapped View</string>
+    <string name="wrapped_view_pane_title">Fixing accessibility on a wrapped view</string>
+    <string name="wrapped_view_intro">Many apps are a mix of old and new code. A custom control written years ago can be placed inside a new screen and look perfectly at home, while telling a screen reader nothing about what it is, what it is set to, or how to change it.</string>
+    <string name="wrapped_view_what_to_try">Turn on TalkBack and swipe onto the stars below. Listen for what is announced, then try to change the rating without tapping a star directly. With a keyboard, try the arrow keys.</string>
+    <string name="wrapped_view_section_label">Rate Your Delivery</string>
+    <string name="wrapped_view_rating_label">Delivery rating</string>
+    <string name="wrapped_view_developer_note_better">The star rating is a legacy custom View (LegacyStarRatingView, in WrappedViewTopic.kt), placed in Compose with AndroidView. It is the same unmodified class in both versions. Everything that makes it accessible here is applied to the View instance from outside, through public APIs, which is how this kind of fix usually has to be done when the class belongs to a library or another team.
+
+contentDescription gives it a name. ViewCompat.setStateDescription gives the current value separately from the name, and is called again whenever the rating changes, which also notifies accessibility services so the new value is announced. ViewCompat.setAccessibilityDelegate installs an AccessibilityDelegateCompat that reports the class name of SeekBar (so accessibility services treat it as an adjustable control), adds RangeInfo (0 to 5), and offers ACTION_SCROLL_FORWARD and ACTION_SCROLL_BACKWARD, handled in performAccessibilityAction. isFocusable and a key listener make it reachable and adjustable with a keyboard.
+
+This is the one topic that uses Android Views on purpose (requirements §3.7). In a hybrid app, the accessibility of a wrapped View is still decided by the View system: Compose\'s semantics modifiers apply to the AndroidView\'s layout node, not to the View\'s own AccessibilityNodeInfo. That is why the fix uses View APIs, not Compose ones.
+
+The instrumented test for this topic builds the View\'s AccessibilityNodeInfo the same way an accessibility service receives it, and performs the scroll actions on it.</string>
+    <string name="wrapped_view_developer_note_naive">The legacy View is placed in Compose with AndroidView exactly as it is. It draws the stars and responds to taps, so a sighted touch user notices nothing wrong.
+
+To an accessibility service it is an anonymous android.view.View: no content description, no state description, no range information, and no accessibility actions. Because it is not clickable or focusable either, TalkBack may skip it entirely. The only way to change the rating is to tap a precise spot on the screen, which TalkBack\'s touch exploration intercepts and which a keyboard or switch user cannot do at all.
+
+Nothing in Compose can see this. The View\'s accessibility is handled by the View system, so Compose\'s lint checks and semantics tree have nothing to report. The instrumented test for this topic reads the View\'s own AccessibilityNodeInfo back and finds it empty.</string>
+    <plurals name="wrapped_view_rating_state">
+        <item quantity="one">%1$d of %2$d star</item>
+        <item quantity="other">%1$d of %2$d stars</item>
+    </plurals>
+
+    <!-- WebView Accessibility Scope topic (requirements §3.7, §3.7.1, Topic 37) -->
+    <string name="webview_scope_title">WebView Accessibility Scope</string>
+    <string name="webview_scope_pane_title">WebView accessibility scope</string>
+    <string name="webview_scope_intro">Some screens show a web page inside the app, such as a help page from the company website. The web page\'s own accessibility is up to whoever wrote it. What the app is responsible for is everything around it: where the page sits among the app\'s own controls, and what happens when it fails to load.</string>
+    <string name="webview_scope_what_to_try">Turn on TalkBack, then turn on \"Simulate a loading failure\". Listen for whether the error is announced, then swipe through the help area. Check whether you can still reach the old page behind the error, and how the retry control is described.</string>
+    <string name="webview_scope_section_label">Delivery Help</string>
+    <string name="webview_scope_simulate_failure">Simulate a loading failure</string>
+    <string name="webview_scope_error_message">The help page could not be loaded. Check your connection and try again.</string>
+    <string name="webview_scope_retry">Try again</string>
+    <string name="webview_scope_contact_support">Contact support</string>
+    <string name="webview_scope_developer_note_better">A WebView embedded in an app is assessed as part of that app, under EN 301 549 clause 11 (software), not clause 9 (web). The two do not apply in parallel (requirements §3.7.1). The accessibility of the HTML itself belongs to whoever writes the page, and is out of scope for this app to fix. Modern WebView already exposes the page\'s own accessibility tree to TalkBack automatically, and native code cannot improve on that. What is the app\'s responsibility is the native layer around it, and that is all this version changes.
+
+While the error overlay is shown, the WebView is set to View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS through AndroidView\'s update block, so the covered page is removed from the accessibility tree, not just from view. The error message is a polite live region, so its appearance is announced. The retry control is a TextButton, which carries the Button role.
+
+The page sits between the heading and the \"Contact support\" button in composition order in both versions. Compose orders an interop View in accessibility traversal according to its position among its Compose siblings, so no extra work was needed for its position. This still needs checking on a device.
+
+The instrumented test for this topic checks the live region, the Button role, and the WebView\'s importantForAccessibility while the error is shown.</string>
+    <string name="webview_scope_developer_note_naive">The page itself is fine, and identical in both versions. The failures are all in the native layer around it.
+
+The error overlay is drawn on top of the WebView, but the WebView stays in the accessibility tree underneath it. A sighted user sees only the error. A TalkBack user can swipe past the error straight into the old page behind it, with nothing to say it is stale. The error message is plain text, so its sudden appearance is not announced. The retry control is a Text with Modifier.clickable: it looks like a button and can be activated, but it announces no role, so nothing tells a screen reader user that it is a control.
+
+None of this is about the web page\'s own accessibility, which belongs to whoever wrote it (EN 301 549 clause 9) and is out of scope here. An embedded WebView is assessed as part of the app, under clause 11, and these failures are the app\'s.</string>
 </resources>
