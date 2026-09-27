@@ -292,7 +292,7 @@ the split has no code implications.
 | # | Topic | Primary APIs | Naive counterpart | Central teaching point |
 |---|---|---|---|---|
 | 38 | Dragging movements | `pointerInput`, `detectDragGesturesAfterLongPress`, `CustomAccessibilityAction` | Yes | WCAG 2.2 SC 2.5.7. A drag-only reorder gesture has no non-pointer equivalent. Better adds a custom action pair ("move up" / "move down") plus visible arrow buttons as the pointer-free alternative. |
-| 39 | Focus not obscured (minimum) | `imePadding`, `BringIntoViewRequester` | Yes | WCAG 2.2 SC 2.4.11. A fixed bottom bar or the IME itself can fully cover the focused field. Verify with a physical or external keyboard, not just TalkBack — the failure has nothing to do with screen-reader focus. |
+| 39 | Focus not obscured (minimum) | `windowInsetsPadding(WindowInsets.ime)` | Yes | WCAG 2.2 SC 2.4.11. A fixed bottom bar or the IME itself can fully cover the focused field. **Correction (2026-09-27):** `BringIntoViewRequester` is not needed — Compose already scrolls a newly focused node into view on its own; the actual fix is the scroll viewport's own geometry under `enableEdgeToEdge()`. See `CLAUDE.md`'s "Focus Visibility and Interop" section. Verify with a physical or external keyboard, not just TalkBack — the failure has nothing to do with screen-reader focus. |
 | 40 | Redundant entry | hoisted form state | Yes | WCAG 2.2 SC 3.3.7. A multi-step form must not ask the user to re-supply information already given earlier in the same process. Better pre-fills or offers the earlier value as a selectable option. |
 | 41 | Accessible authentication (minimum) | `ContentType.NewPassword` / `Username`, `KeyboardOptions` | Yes | WCAG 2.2 SC 3.3.8. No step may rely solely on a cognitive-function test (an arithmetic CAPTCHA); paste and password-manager autofill must be allowed, with a biometric alternative offered where the platform supports one. |
 | 42 | Consistent identification | shared string resources | Yes | WCAG 2.2 SC 3.2.4. The same action must carry the same name and description everywhere it appears. Naive names one action differently on two screens; Better draws both from one shared string resource. |
@@ -565,9 +565,24 @@ is written for someone applying this to their own app, not only for a contributo
 
 ## 10. Open Questions
 
+None outstanding. All three are resolved below; this table stays as the historical record of
+what each one asked.
+
 | # | Question | Blocks | Notes |
 |---|---|---|---|
 | 3 | Topic 35 escape-route design | Topic 35 | Required by §4.6 before implementation. |
+
+> **Resolved 2026-09-13, marked in this document 2026-09-27:** Topic 35 escape-route design. The
+> `b636589` commit that built Topic 35 said questions #1–#3 were resolved, but only #1 and #2 got
+> their resolution noted here — this row was left stale for two weeks. The actual design: both
+> Naive and Better use `ModalBottomSheetProperties()` at its defaults, never disabled, confirmed
+> by reading `ModalBottomSheet.android.kt` — `shouldDismissOnBackPress` defaults to `true`, and
+> the sheet's `Scrim` composable wires `onDismissRequest` to itself unconditionally, not even
+> exposed as a configurable property (the library's own comment: "Removed dismissOnClickOutside
+> ... as they are not relevant for fullscreen experience"). That default already satisfies §4.6;
+> neither version has to do anything special to keep the escape route open. See
+> `ui/topic/modalsurfaces/ModalSurfacesBetter.kt`. Confirmed on-device (screenshots): the sheet
+> opens and dismisses cleanly with no trapped focus.
 
 > **Resolved 2026-07-30:** `minSdk` is 28, matching this document and `app/build.gradle.kts`.
 > `CLAUDE.md` previously said 30; that was stale text from before the initial scaffold, not a
