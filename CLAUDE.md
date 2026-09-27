@@ -308,6 +308,32 @@ layout, remove features, or introduce bugs to make a Naive version look bad. If 
 cannot be expressed this way, it belongs in the "no naive counterpart" category — set
 `supportsNaive = false` and say so rather than forcing it.
 
+**A recognized exception: when the requirement itself is to offer an alternative.** A few
+success criteria (WCAG 2.5.7's single-pointer alternative, 3.3.8's authentication alternative)
+ask for a *path* to exist, not just for existing UI to carry better semantics — an alternative
+that isn't there cannot be demonstrated by same-layout-different-semantics alone. Better may then
+carry one element Naive structurally cannot (Topic 38 Dragging Movements' visible reorder
+buttons; Topic 41 Accessible Authentication's biometric button) while `supportsNaive` stays
+`true`, because the rest of the topic — the failure mode itself — is still a faithful, comparable
+contrast. This is not the same as `supportsNaive = false`: that category has no comparison to
+make at all; this one has a real contrast, plus one element the requirement demands on the
+Better side. Mark the added element with a `// WHY:` comment naming which of two things it is:
+
+- a **required** affordance, without which the underlying success criterion fails outright for
+  some population — Topic 38's buttons, since WCAG 2.5.7 covers pointer users generally, not
+  just those running an accessibility service, so an invisible `customAction` alone leaves a
+  sighted user with a tremor and no screen reader running with no alternative at all; or
+- an **idiom** affordance layered on top of an already-sufficient fix, there for one assistive-
+  technology population's efficiency rather than because the criterion demands it — Topic 38's
+  `customActions` themselves. Once the buttons exist, TalkBack can already reach them directly;
+  the custom action only turns two swipe-stops into one, on the row itself.
+
+Naming which one an addition is, in its own `// WHY:` comment, is what keeps this exception from
+reading as an unexplained invariant violation to a future contributor — the project does not
+claim to have gotten every judgment call right on the first pass (see `README.md`'s own note on
+"better", not "good"), so the reasoning behind a deliberate exception belongs in writing, not
+just in the choice itself.
+
 ---
 
 ## Adding a Topic
