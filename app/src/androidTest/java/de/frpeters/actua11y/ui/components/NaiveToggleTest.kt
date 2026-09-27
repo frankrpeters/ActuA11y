@@ -27,6 +27,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.font.FontWeight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.frpeters.actua11y.R
@@ -47,7 +48,12 @@ class NaiveToggleTest {
     val composeTestRule = createComposeRule()
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
-    private val label get() = context.getString(R.string.naive_toggle_label)
+    // WHY: matches the exact concatenation NaiveToggle.kt builds via buildAnnotatedString — the
+    // merged node's plain text is unaffected by the bold/colour span styling applied there.
+    private val label
+        get() = context.getString(R.string.naive_toggle_word_naive) +
+            " / " +
+            context.getString(R.string.naive_toggle_word_better)
     private val betterState get() = context.getString(R.string.naive_toggle_state_better)
     private val naiveState get() = context.getString(R.string.naive_toggle_state_naive)
 
@@ -75,6 +81,42 @@ class NaiveToggleTest {
             naiveState,
             toggleNode.fetchSemanticsNode().config[SemanticsProperties.StateDescription],
         )
+    }
+
+    @Test
+    fun toggle_boldsWhicheverWordNamesTheCurrentMode() {
+        val naiveWord = context.getString(R.string.naive_toggle_word_naive)
+        val betterWord = context.getString(R.string.naive_toggle_word_better)
+        val naiveRange = 0 until naiveWord.length
+        val betterStart = naiveWord.length + 3 // " / "
+        val betterRange = betterStart until (betterStart + betterWord.length)
+
+        composeTestRule.setContent {
+            var showNaive by remember { mutableStateOf(false) }
+            MaterialTheme {
+                NaiveToggle(showNaive = showNaive, onToggle = { showNaive = it }, enabled = true)
+            }
+        }
+
+        val toggleNode = composeTestRule.onNodeWithText(label)
+
+        // WHY: reads the AnnotatedString's own span list back, the same idiom Verbatim Strings
+        // uses for TTS annotations — the bold span is a real, assertable property of the merged
+        // node's Text, not just a visual claim.
+        fun boldRanges() = toggleNode.fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .first { it.text == label }
+            .spanStyles
+            .filter { it.item.fontWeight == FontWeight.Bold }
+            .map { it.start until it.end }
+
+        // showNaive starts false: "Better" is the active word, "Naive" is not.
+        assertEquals(listOf(betterRange), boldRanges())
+
+        toggleNode.performClick()
+
+        // showNaive is now true: "Naive" is the active word, "Better" is not.
+        assertEquals(listOf(naiveRange), boldRanges())
     }
 
     @Test

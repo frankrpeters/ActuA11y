@@ -9,6 +9,19 @@ into a tagged release.
 
 ## [Unreleased]
 
+### Changed
+
+- `NaiveToggle`'s label now bolds and colours whichever word ("Naive" or "Better") names the
+  currently active mode, instead of always showing both at equal weight. The switch's on/off
+  position alone gave a sighted user no way to read which side it mapped to; this fixes that
+  without changing anything for TalkBack — span styling has no effect on the text a screen reader
+  speaks, and `stateDescription` already carries the current mode there, unaffected. Colour is
+  never the only signal (per this project's own Colour Contrast and Colour Independence topic):
+  font weight carries the distinction on its own, colour only reinforces it. Confirmed by an
+  instrumented test reading the merged node's own `AnnotatedString` span list back — the same
+  idiom the Verbatim Strings topic uses for TTS annotations — rather than asserted from a visual
+  claim.
+
 ## [0.6.0] - 2026-09-27
 
 ### Added

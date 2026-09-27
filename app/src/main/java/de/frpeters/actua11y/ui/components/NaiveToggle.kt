@@ -42,6 +42,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.frpeters.actua11y.R
@@ -112,7 +116,26 @@ fun NaiveToggle(
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = stringResource(R.string.naive_toggle_label))
+        val naiveWord = stringResource(R.string.naive_toggle_word_naive)
+        val betterWord = stringResource(R.string.naive_toggle_word_better)
+        // WHY: bold + colour on whichever word names the current mode, not colour alone (this
+        // project has a whole topic, Colour Contrast and Colour Independence, about exactly that
+        // mistake). A sighted user can read which side the switch's on/off position maps to at a
+        // glance, without needing to remember it. This changes nothing for TalkBack: span styling
+        // has no effect on the text a screen reader speaks, and the merged plain text stays
+        // "Naive / Better" either way — stateDescription above is what already carries the current
+        // mode to TalkBack, unaffected by this.
+        val activeStyle = SpanStyle(
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Text(
+            text = buildAnnotatedString {
+                withStyle(if (showNaive) activeStyle else SpanStyle()) { append(naiveWord) }
+                append(" / ")
+                withStyle(if (!showNaive) activeStyle else SpanStyle()) { append(betterWord) }
+            },
+        )
         Switch(
             checked = showNaive,
             // WHY: onCheckedChange = null makes the Switch itself non-interactive and

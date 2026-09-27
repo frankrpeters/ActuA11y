@@ -32,7 +32,8 @@
     <string name="onboarding_talkback_link_url">https://support.google.com/accessibility/android/answer/6283677</string>
 
     <!-- Naive/Better toggle (requirements §4.4) -->
-    <string name="naive_toggle_label">Naive / Better</string>
+    <string name="naive_toggle_word_naive">Naive</string>
+    <string name="naive_toggle_word_better">Better</string>
     <string name="naive_toggle_state_better">Accessible version</string>
     <string name="naive_toggle_state_naive">Naive version</string>
 
