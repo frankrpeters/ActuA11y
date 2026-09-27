@@ -9,6 +9,125 @@ into a tagged release.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-27
+
+### Added
+
+- Consistent Identification topic (`ui/topic/consistentidentification/`, Topic 42, Text and
+  Announcement) — the same heart-icon "save" action appears on a search result and on a product
+  details card. Naive: both buttons are labelled, but differently ("Save" / "Add to wishlist"),
+  invisible to a sighted user who sees the same icon twice. Better: both draw their
+  `contentDescription` from one shared string resource. The instrumented test compares the two
+  nodes' names to each other, since each is individually valid in both versions. Registry
+  metadata: `enClause = "11.3.2.4"`, `wcagVersion = "2.1"` (SC 3.2.4 predates 2.2),
+  `bindingFrom = "EN 301 549 V4.1.1"` (the clause was void for software in V3.2.1).
+- Concatenated Content Descriptions topic (`ui/topic/concatenateddescriptions/`, Topic 46, Text
+  and Announcement) — an order summary card made one TalkBack stop with `clearAndSetSemantics`.
+  Naive: the five description segments are joined with spaces. Better: joined with `\n`, which
+  TalkBack treats as a pause (requirements §3.9). The item count uses a plurals resource.
+  `TODO(verify)`: the audible pause on a real device.
+- Void Clause: Consistent Help (`ui/topic/voidconsistenthelp/`, Topic 44) and Void Clause:
+  Parsing (`ui/topic/voidparsing/`, Topic 45) — content-only note screens with
+  `supportsNaive = false` (§4.5), placed under Structure and Traversal. Each has three headed
+  sections (what the criterion asks, why it does not apply to a native app, what to check
+  instead); their tests assert the three headings and the registry's `supportsNaive = false`.
+- Redundant Entry topic (`ui/topic/redundantentry/`, Topic 40, Forms and Input) — a two-step
+  checkout (delivery address, then billing address) with both steps' state hoisted above the step
+  switch in both versions. Naive: step 2 starts empty. Better: step 2's fields are pre-filled from
+  step 1 while still untouched, so a user-edited billing address is never overwritten. Pre-filling
+  was chosen over a "same as delivery" checkbox to keep the layout identical. The shared
+  `AddressFormState` and `AddressFields` live in the dispatcher file, following the
+  `ColourContrastTopic.kt` precedent. Registry: `11.3.3.7` / WCAG 2.2 / binding from V4.1.1.
+- Accessible Authentication topic (`ui/topic/accessibleauthentication/`, Topic 41, Forms and
+  Input). Naive: the password field accepts at most one new character per change, which blocks
+  paste and — as the realistic side effect — password-manager autofill; no `ContentType` on
+  either field. Better: accepts any change, declares `ContentType.Username`/`ContentType.Password`,
+  and offers biometric sign-in through `androidx.biometric`'s `BiometricPrompt`
+  (`BIOMETRIC_WEAK`), with the outcome in a polite live region. The biometric button is the one
+  documented departure from Naive/Better parity. The arithmetic CAPTCHA named in requirements
+  §3.8 is described in the developer note rather than built, since it would be a second
+  Naive-only element. Tests use `performTextInput` as a stand-in for a one-step paste/fill.
+  Registry: `11.3.3.8` / WCAG 2.2 / binding from V4.1.1.
+- Dragging Movements topic (`ui/topic/draggingmovements/`, Topic 38, Controls and Interaction) —
+  a reorderable packing list. Both versions share the same long-press-and-drag reordering
+  (`detectDragGesturesAfterLongPress`, in the dispatcher file). Naive: dragging is the only way to
+  reorder. Better: adds "Move up"/"Move down" `customActions` on each row (only the possible
+  moves) and visible arrow `IconButton`s — the arrows are the documented parity exception, since
+  SC 2.5.7 needs a single-pointer alternative that custom actions alone do not provide.
+  `TODO(verify)`: where TalkBack focus lands after a move. Registry: `11.2.5.7` / WCAG 2.2 /
+  binding from V4.1.1.
+- Focus Not Obscured topic (`ui/topic/focusnotobscured/`, Topic 39, Visual and Motor) — payment
+  fields in a fixed-height checkout frame with a pinned pay bar. Naive: the bar is overlaid in a
+  `Box` with bottom padding (the touch-only fix), so the scroll viewport still runs under it and a
+  keyboard-focused field can stay hidden; nothing handles the on-screen keyboard. Better: the bar
+  is laid out beneath the form (`weight(1f)`), and the screen root applies
+  `windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars))`. Correction to
+  requirements §3.8, which lists `BringIntoViewRequester`: reading Compose Foundation 1.8.1's
+  `Focusable.kt` (focus gain calls `bringIntoView()`) and `ContentInViewNode.kt` (a viewport
+  shrink re-reveals the focused child) shows no explicit requester is needed — the fix is the
+  viewport's geometry. The test compares the focused field's bounds with the bar's.
+  Registry: `11.2.4.11` / WCAG 2.2 / binding from V4.1.1.
+- Fixing Accessibility on a Wrapped View topic (`ui/topic/wrappedview/`, Topic 36, Interop — the
+  first topic in that category, and the project's one deliberate use of Android Views). A legacy
+  custom-drawn star rating (`LegacyStarRatingView`, in the dispatcher file) is wrapped with
+  `AndroidView`, unmodified, in both versions. Naive: nothing else. Better: repairs it from outside
+  the class — `contentDescription`, `ViewCompat.setStateDescription` (re-applied on every change,
+  which also notifies accessibility services), an `AccessibilityDelegateCompat` reporting
+  `SeekBar`'s class name, `RangeInfo` and scroll forward/backward actions, plus focusability and
+  arrow-key handling. The test reads the View's own `AccessibilityNodeInfo`, since the Compose
+  semantics tree cannot see inside an `AndroidView`.
+- WebView Accessibility Scope topic (`ui/topic/webviewscope/`, Topic 37, Interop) — a bundled help
+  page (`assets/webview_scope/faq.html`, so no `INTERNET` permission) in a `WebView`, with a
+  shared switch that simulates a load failure. Naive: the error overlay is plain text with a
+  role-less clickable "Try again", and the covered page stays in the accessibility tree. Better:
+  polite live region, a `TextButton`, and `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` on the
+  WebView while covered. Traversal placement is the same in both (composition order);
+  `TODO(verify)` on device. The developer notes state the clause 9 / clause 11 boundary
+  (§3.7.1).
+
+### Changed
+
+- `Topic` (`navigation/TopicRegistry.kt`) gains the three optional source-metadata fields
+  requirements §4.7 already specified but the code never had: `enClause`, `wcagVersion`, and
+  `bindingFrom`, all defaulting to `null`. `docs/WCAG2.2_addenda.md` had this item ticked off as
+  done; only the requirements text had been updated, not the class itself. No existing entry sets
+  them — Topic 43 (Switch: platform vs. custom) is deliberately not tied to a single success
+  criterion, so `null` is its correct value rather than an omission.
+- `README.md` Coverage now reads "All forty-six are implemented" and lists Topic 46; `CLAUDE.md`
+  topic counts updated to forty-six, and a new "Focus Visibility and Interop — Established By
+  Reading Source" section records the findings from Topics 36, 37 and 39 (source-read, not yet
+  device-confirmed), including that no screen outside Topic 39 handles IME insets under
+  edge-to-edge.
+- New dependency `androidx.biometric:biometric:1.1.0` (latest stable), approved for Topic 41. It
+  brings `androidx.fragment` and an older `androidx.appcompat` transitively. `MainActivity` now
+  extends `FragmentActivity` (a `ComponentActivity` subclass) because `BiometricPrompt` requires
+  one.
+- `gradlew` is now committed as executable (mode `100755`); it was `100644`, so `./gradlew` failed
+  with "Permission denied" on Linux, including cloud build environments.
+- AGP 9.3.2 → 9.4.1, Gradle 9.5.0 → 9.6.0. Verified clean (compile, lint, `assembleDebug`/
+  `assembleRelease`, and the full `connectedDebugAndroidTest` suite) both alone and combined with
+  the ten new topics below.
+- `CLAUDE.md`'s structural invariant 2 (Naive/Better parity) gains a documented third category:
+  when a requirement itself is to offer an alternative affordance (WCAG 2.5.7, 3.3.8), Better may
+  carry one element Naive structurally cannot, with a `// WHY:` comment naming whether that
+  element is *required* (the criterion fails outright without it, for some population) or an
+  *idiom* layered on top (there for one assistive-technology population's efficiency, not because
+  the criterion demands it). Covers Topics 38 and 41, both confirmed with the project author as
+  intentional rather than an unexplained rule violation.
+- README's "Work in progress" banner reworded from "not every topic has shipped in a release yet"
+  to reflect this release actually shipping all forty-six.
+
+### Fixed
+
+- `RedundantEntryTopicTest`'s two tests both failed on a real device: the "Continue" button sits
+  below the fold on the test host's default window, and `performClick()` dispatches to the node's
+  actual on-screen coordinates rather than scrolling to it first, so the click silently landed
+  nowhere and step 2 was never reached. Production code was already correct — fixed by adding
+  `performScrollTo()` before `performClick()` in the test.
+- README's Coverage section and its "Work in progress" banner briefly contradicted each other
+  after the topic catalogue was completed (one said all forty-six topics were implemented, the
+  other still said not every topic was implemented) — reworded for consistency.
+
 ## [0.5.0] - 2026-09-13
 
 ### Added
@@ -459,7 +578,8 @@ into a tagged release.
   `CLAUDE.md`'s text was stale).
 - Default branch renamed `master` → `main`.
 
-[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...dev
+[Unreleased]: https://github.com/frankrpeters/ActuA11y/compare/v0.6.0...dev
+[0.6.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/frankrpeters/ActuA11y/compare/v0.2.0...v0.3.0

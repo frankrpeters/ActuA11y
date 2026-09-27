@@ -19,7 +19,7 @@ Every topic exists in two implementations — **Naive** and **Better** — selec
 a toggle in the app bar. Both are compiled into every build variant.
 
 - Package: `de.frpeters.actua11y`
-- AGP 9.3.2 | compileSdk 36 | minSdk 28
+- AGP 9.4.1 | compileSdk 36 | minSdk 28
 - Kotlin, Jetpack Compose only
 - License: Apache 2.0 — every source file carries the header
 
@@ -42,7 +42,7 @@ a toggle in the app bar. Both are compiled into every build variant.
 ## AGP Behaviour — Established By Trial
 
 These were discovered by hitting them. Do not "correct" them back. Confirmed still true as of
-AGP 9.3.2 / Kotlin 2.2.10 / Gradle 9.5.0.
+AGP 9.4.1 / Kotlin 2.2.10 / Gradle 9.6.0.
 
 - **Do NOT apply `org.jetbrains.kotlin.android`** in `app/build.gradle.kts`. AGP registers the
   `kotlin` extension internally; applying the plugin explicitly causes
@@ -230,6 +230,34 @@ exposed as `Role`/`ContentDescription`/etc.).
 
 ---
 
+## Focus Visibility and Interop — Established By Reading Source
+
+Discovered building Focus Not Obscured, Fixing Accessibility on a Wrapped View, and WebView
+Accessibility Scope (2026-09-24), by reading `foundation-android-1.8.1-sources.jar`. **Not yet
+confirmed on a device** — the matching `TODO(verify)` comments are in those topics' files; update
+this section when they are resolved.
+
+- **Compose already scrolls a newly focused node into view — no `BringIntoViewRequester` needed
+  for focus.** `FocusableNode.onFocusStateChange` (`Focusable.kt`) calls `bringIntoView()` on
+  focus gain, and `ContentInViewNode.onRemeasured` re-reveals a focused child that a *viewport
+  shrink* has clipped (the keyboard opening under `imePadding`). What goes wrong is the viewport's
+  geometry: a bar overlaid on a scroll container in a `Box` leaves the viewport running underneath
+  it, so a field hidden behind the bar counts as "in view" and nothing scrolls. Requirements §3.8
+  lists `BringIntoViewRequester` for Topic 39; this is why it is not used there.
+- **This app draws edge to edge (`enableEdgeToEdge()`), and nothing outside Topic 39 handles IME
+  insets.** `adjustResize` in the manifest no longer resizes the window under edge-to-edge, and
+  `Scaffold`'s default content insets are the system bars, not the IME. Any screen with a text
+  field low on the screen can therefore have it covered by the keyboard. Topic 39's Better version
+  applies `windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.systemBars))` at its own root;
+  whether to do the same app-wide (in `AppScaffold`) is an open decision, not yet made.
+- **The Compose semantics tree cannot see inside an `AndroidView`.** A wrapped View's
+  accessibility is built by the View system (`View.createAccessibilityNodeInfo()`, through any
+  `AccessibilityDelegateCompat`), so it must be fixed with View APIs and tested by finding the View
+  in the Activity's hierarchy — `createAndroidComposeRule<ComponentActivity>()`, then
+  `activity.window.decorView` — not with `onNode…` finders. See `WrappedViewTopicTest`.
+
+---
+
 ## Project Structure
 
 ```
@@ -280,6 +308,32 @@ layout, remove features, or introduce bugs to make a Naive version look bad. If 
 cannot be expressed this way, it belongs in the "no naive counterpart" category — set
 `supportsNaive = false` and say so rather than forcing it.
 
+**A recognized exception: when the requirement itself is to offer an alternative.** A few
+success criteria (WCAG 2.5.7's single-pointer alternative, 3.3.8's authentication alternative)
+ask for a *path* to exist, not just for existing UI to carry better semantics — an alternative
+that isn't there cannot be demonstrated by same-layout-different-semantics alone. Better may then
+carry one element Naive structurally cannot (Topic 38 Dragging Movements' visible reorder
+buttons; Topic 41 Accessible Authentication's biometric button) while `supportsNaive` stays
+`true`, because the rest of the topic — the failure mode itself — is still a faithful, comparable
+contrast. This is not the same as `supportsNaive = false`: that category has no comparison to
+make at all; this one has a real contrast, plus one element the requirement demands on the
+Better side. Mark the added element with a `// WHY:` comment naming which of two things it is:
+
+- a **required** affordance, without which the underlying success criterion fails outright for
+  some population — Topic 38's buttons, since WCAG 2.5.7 covers pointer users generally, not
+  just those running an accessibility service, so an invisible `customAction` alone leaves a
+  sighted user with a tremor and no screen reader running with no alternative at all; or
+- an **idiom** affordance layered on top of an already-sufficient fix, there for one assistive-
+  technology population's efficiency rather than because the criterion demands it — Topic 38's
+  `customActions` themselves. Once the buttons exist, TalkBack can already reach them directly;
+  the custom action only turns two swipe-stops into one, on the row itself.
+
+Naming which one an addition is, in its own `// WHY:` comment, is what keeps this exception from
+reading as an unexplained invariant violation to a future contributor — the project does not
+claim to have gotten every judgment call right on the first pass (see `README.md`'s own note on
+"better", not "good"), so the reasoning behind a deliberate exception belongs in writing, not
+just in the choice itself.
+
 ---
 
 ## Adding a Topic
@@ -295,8 +349,8 @@ graph by hand, and do not maintain any parallel list of topics anywhere.**
 
 `ui/topic/contentdescriptions/` is the reference structure. Follow it exactly — file layout,
 section order, comment style, preview set. Uniformity matters here more than usual: the
-source code is the product, and thirty-six topics that each look slightly different are
-harder to read than thirty-six that look identical.
+source code is the product, and forty-six topics that each look slightly different are
+harder to read than forty-six that look identical.
 
 ### Topic screen content order
 
@@ -413,7 +467,7 @@ the canonical explanation to point to rather than re-deriving in conversation.
   1. Bump `versionCode` and `versionName` in `app/build.gradle.kts` (Semantic Versioning —
      `0.y.z` while the topic catalogue in requirements §3 is incomplete; `1.0.0` once the
      author judges the reference set complete enough, which is a judgment call, not a
-     mechanical trigger from "all 36 topics implemented").
+     mechanical trigger from "all 46 topics implemented").
   2. **Always update `README.md` and `CLAUDE.md`, not just `CHANGELOG.md`, before tagging.**
      `README.md`'s Coverage section (topic count, per-category lists) is the most common thing
      to drift — it has shipped stale before. `CLAUDE.md` should already be current if its

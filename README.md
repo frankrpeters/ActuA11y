@@ -11,7 +11,7 @@
 
 </div>
 
-> ⚠️ **Work in progress.** This README describes the intended shape of the project. Not all topic screens are implemented yet. See [Releases](../../releases) for what actually exists today.
+> ⚠️ **Pre-1.0.** All forty-six topics below are implemented as of this release. The version stays `0.y.z` until they've had a proper testing pass — that's a judgment call, not a checklist. See [Releases](../../releases) for the current version.
 
 ---
 
@@ -47,7 +47,7 @@ Some topics have no honest naive counterpart — where the naive version would s
 
 ## Coverage
 
-Forty-six topics across seven areas, eight of them added as EN 301 549 V4.1.1 and WCAG 2.2 become relevant, plus one more logged from real-world use. Thirty-six are implemented so far.
+Forty-six topics across seven areas, eight of them added as EN 301 549 V4.1.1 and WCAG 2.2 become relevant, plus one more logged from real-world use. All forty-six are implemented.
 
 <details>
 <summary><strong>Structure and traversal</strong> — how a screen reader moves through a screen</summary>
@@ -75,7 +75,7 @@ Inputs that are actually buttons (date pickers, and why `readOnly` and `enabled 
 <details>
 <summary><strong>Text and announcement</strong> — what gets said, and when</summary>
 
-Where `contentDescription` belongs and where it silently breaks things · state versus content description · live regions · verbatim strings for phone numbers and postcodes · selectable text · error semantics · naming the same action the same way everywhere it appears
+Where `contentDescription` belongs and where it silently breaks things · state versus content description · live regions · verbatim strings for phone numbers and postcodes · selectable text · error semantics · naming the same action the same way everywhere it appears · spoken descriptions that run several facts together without a pause
 
 </details>
 
